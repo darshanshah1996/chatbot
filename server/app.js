@@ -51,7 +51,7 @@ appServer.get("/groq-models", async (req, res) => {
     const response = await fetch("https://api.groq.com/openai/v1/models", {
       method: "GET",
       headers: {
-        Authorization: `Bearer ${api.GROPQ_API_KEY}`,
+        Authorization: `Bearer ${api.GROQ_API_KEY}`,
       },
     });
 

@@ -14,7 +14,7 @@ import { LaunchApplicationUsingTool } from "./tools.js";
 import fs from "fs";
 
 const memory = initializeMemory(modelServices.groq, groqModels.scout);
-const groq = new Groq({ apiKey: api.GROPQ_API_KEY });
+const groq = new Groq({ apiKey: api.GROQ_API_KEY });
 const parser = new StringOutputParser();
 
 function initializeNonStreamModel(serviceName, modelName, temperature = 0) {
@@ -23,7 +23,7 @@ function initializeNonStreamModel(serviceName, modelName, temperature = 0) {
   switch (serviceName) {
     case modelServices.groq:
       model = new ChatGroq({
-        apiKey: api.GROPQ_API_KEY,
+        apiKey: api.GROQ_API_KEY,
         model: modelName,
         temperature: temperature,
       });
@@ -78,7 +78,7 @@ function initializeStreamModel(serviceName, modelName, res) {
   switch (serviceName) {
     case modelServices.groq:
       model = new ChatGroq({
-        apiKey: api.GROPQ_API_KEY,
+        apiKey: api.GROQ_API_KEY,
         model: modelName,
         streaming: true,
         callbacks: callbacks,
