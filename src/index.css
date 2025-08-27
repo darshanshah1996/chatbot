@@ -1,0 +1,35 @@
+@import "tailwindcss";
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+button {
+  outline: none;
+  cursor: pointer;
+}
+
+html {
+  height: 100%;
+}
+
+body {
+  height: 100%;
+  background-color: black;
+}
+
+#root {
+  height: 100%;
+  margin: 0px;
+  padding: 0px;
+}
+
+.disabled {
+  cursor: not-allowed;
+}
+
+.hide {
+  display: none !important;
+}

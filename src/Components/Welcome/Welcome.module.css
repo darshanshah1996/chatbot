@@ -1,0 +1,44 @@
+.container {
+  height: auto;
+  flex-grow: 1;
+  border-radius: 10px;
+  background-color: rgb(30, 30, 30);
+  display: grid;
+  position: relative;
+  place-items: center;
+}
+
+.heading {
+  font-size: 4rem;
+  font-weight: bold;
+  background: linear-gradient(
+    90deg,
+    red,
+    orange,
+    yellow,
+    green,
+    blue,
+    indigo,
+    violet,
+    red
+  );
+  background-size: 400%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: rainbow 5s linear infinite;
+}
+
+.subTitle {
+  font-size: 1.5rem;
+  text-align: center;
+  color: white;
+}
+
+@keyframes rainbow {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 100% 50%;
+  }
+}

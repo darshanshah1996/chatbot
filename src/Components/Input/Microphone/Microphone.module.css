@@ -1,0 +1,17 @@
+.icon {
+  width: 20px;
+  height: 20px;
+  color: oklch(0.707 0.165 254.624);
+}
+
+.active {
+  display: grid;
+  place-items: center;
+  padding: 0.25rem 0.25rem;
+  background-color: lightblue;
+  border-radius: 50%;
+}
+
+.microPhone {
+  margin-left: 0.25rem;
+}

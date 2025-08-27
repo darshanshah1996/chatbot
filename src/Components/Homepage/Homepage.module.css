@@ -1,0 +1,53 @@
+.container {
+  height: 100%;
+  padding: 1rem;
+  margin: 0px;
+  display: flex;
+  position: relative;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.chatContainer {
+  height: 100%;
+  width: 100%;
+  position: relative;
+  border-radius: 10px;
+  overflow-y: auto;
+  padding: 2rem 2rem;
+  display: flex;
+  flex-direction: column;
+  -ms-overflow-style: none; /* Internet Explorer 10+ */
+  scrollbar-width: none; /* Firefox, Safari 18.2+, Chromium 121+ */
+}
+
+.response {
+  color: white;
+}
+
+.modelInfo {
+  position: absolute;
+  top: 2%;
+  right: 2%;
+  color: rgb(197, 191, 191);
+  z-index: 2;
+}
+
+.hamburgerMenu {
+  position: absolute;
+  top: 3%;
+  left: 1.5%;
+  background-color: grey;
+  border-radius: 5px;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  padding: 0.25rem;
+  z-index: 2;
+}
+@media screen and (min-height: 1500px) {
+  .hamburgerMenu {
+    top: 2%;
+  }
+}

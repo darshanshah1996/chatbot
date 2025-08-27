@@ -1,0 +1,23 @@
+.container {
+  height: auto;
+  width: 30%;
+  border-radius: 10px;
+  word-wrap: break-word;
+  padding: 1rem 1rem;
+}
+
+.llm {
+  width: 50%;
+  align-self: start;
+  background-color: #7cddd2;
+  color: black;
+}
+
+.user {
+  align-self: end;
+  background-color: #81b6ee;
+}
+
+p {
+  white-space: pre-wrap;
+}

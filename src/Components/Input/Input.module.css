@@ -1,0 +1,15 @@
+.container {
+  height: auto;
+}
+
+.disable {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.query {
+  overflow-y: hidden;
+  --webkit-scrollbar-width: 0px;
+  height: auto;
+  resize: none;
+}

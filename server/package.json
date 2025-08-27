@@ -1,0 +1,28 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@ai-sdk/groq": "^1.2.9",
+    "@langchain/community": "^0.3.48",
+    "@langchain/core": "^0.3.57",
+    "@langchain/groq": "^0.2.2",
+    "@langchain/ollama": "^0.2.3",
+    "ai": "^4.3.16",
+    "duck-duck-scrape": "^2.2.7",
+    "duckduckgo-search": "^1.0.7",
+    "express": "^5.1.0",
+    "groq-sdk": "^0.29.0",
+    "langchain": "^0.3.29",
+    "morgan": "^1.10.0",
+    "multer": "^2.0.2",
+    "zod": "^3.25.76"
+  }
+}
