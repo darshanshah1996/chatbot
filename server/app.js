@@ -4,12 +4,7 @@ import os from "os";
 import morgan from "morgan";
 import multer from "multer";
 
-import {
-  getCodeChain,
-  getRouterChain,
-  routes,
-  getTextFromSpeech,
-} from "./chains.js";
+import { getRouterChain, routes, getTextFromSpeech } from "./chains.js";
 import { getFormattedRoutes } from "./data/route_data.js";
 import api from "./data/api.js";
 import {
@@ -18,7 +13,6 @@ import {
 } from "./helper/filter_model.js";
 
 const appServer = express();
-const excludeModels = /allam|whisper|playai|compound|tts|arabic|mxbai/gi;
 
 console.log("=================Starting Server=================");
 
@@ -43,7 +37,7 @@ const storage = multer.diskStorage({
 appServer.use(morgan("dev"));
 
 appServer.get("/", (req, res) => {
-  res.send("Chatbot Server 3.0");
+  res.send("Chatbot Server 1.0");
 });
 
 appServer.get("/groq-models", async (req, res) => {
