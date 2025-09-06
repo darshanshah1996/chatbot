@@ -31,21 +31,12 @@
     "@mui/lab": "^7.0.0-beta.16",
     "@mui/material": "^7.3.1",
     "@tailwindcss/vite": "^4.1.8",
-    "ai": "^4.3.16",
     "electron-log": "^5.4.2",
     "electron-squirrel-startup": "^1.0.1",
     "express": "^5.1.0",
-    "highlight.js": "^11.11.1",
-    "html-react-parser": "^5.2.5",
-    "html-to-react": "^1.7.0",
     "lucide-react": "^0.511.0",
-    "nodemon": "^3.1.10",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "react-highlight": "^0.15.0",
-    "react-highlight-syntax": "^1.2.1",
-    "react-hook-speech-to-text": "^0.8.0",
-    "react-speech-recognition": "^4.0.1",
     "react-syntax-highlighter": "^15.6.6",
     "react-textarea-autosize": "^8.5.9",
     "tailwindcss": "^4.1.8",
@@ -70,6 +61,7 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.19",
     "globals": "^16.0.0",
-    "vite": "^6.3.5"
+    "vite": "^6.3.5",
+    "nodemon": "^3.1.10"
   }
 }
