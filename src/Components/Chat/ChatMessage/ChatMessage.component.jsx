@@ -33,7 +33,9 @@ export default React.memo(({ message, role }) => {
       let snippet = entry.match(/<SYNTAXHIGHLIGHTER .*>(.*)/s);
 
       if (snippet !== null) {
-        codeSnippetList.push(snippet[0].replace(/<SYNTAXHIGHLIGHTER .*>/, ""));
+        codeSnippetList.push(
+          snippet[0].replace(/<SYNTAXHIGHLIGHTER .*>/, "").trim()
+        );
       }
     });
   }
@@ -43,39 +45,35 @@ export default React.memo(({ message, role }) => {
       console.log(message);
       console.log(codeSnippetList);
 
-      const nodes = Array.from(
+      const codeSnippetNodesList = Array.from(
         document.querySelectorAll("SYNTAXHIGHLIGHTER:not(.format-code)")
       );
 
-      for (const [index, node] of nodes.entries()) {
-        if (!node.classList.contains("format-code")) {
-          node.classList.add("format-code");
-          const codeSnippet = codeSnippetList[index];
-          const codeLanguage =
-            language[node.getAttribute("language").toLowerCase()];
-          const root = ReactDOM.createRoot(node);
+      for (const [index, codeSnippetNode] of codeSnippetNodesList.entries()) {
+        codeSnippetNode.classList.add("format-code");
+        const codeSnippet = codeSnippetList[index];
+        const codeLanguage =
+          language[codeSnippetNode.getAttribute("language").toLowerCase()];
+        const codeSnippetNodeRef = ReactDOM.createRoot(codeSnippetNode);
 
-          root.render(
-            <div className={`${styles.codeSnippet}`}>
-              <SyntaxHighlighter language={codeLanguage} style={materialDark}>
-                {`${codeSnippet}`}
-              </SyntaxHighlighter>
-              <div className={`${styles.copyToClipboard}`}>
-                <button
-                  title="Copy to Clipboard"
-                  onClick={async (e) => {
-                    await copyToClipboard(codeSnippet, e);
-                  }}
-                >
-                  <Clipboard />
-                </button>
-              </div>
+        codeSnippetNodeRef.render(
+          <div className={`${styles.codeSnippet}`}>
+            <SyntaxHighlighter language={codeLanguage} style={materialDark}>
+              {`${codeSnippet}`}
+            </SyntaxHighlighter>
+            <div className={`${styles.copyToClipboard}`}>
+              <button
+                title="Copy to Clipboard"
+                onClick={async (e) => {
+                  await copyToClipboard(codeSnippet, e);
+                }}
+              >
+                <Clipboard />
+              </button>
             </div>
-          );
-        }
+          </div>
+        );
       }
-
-      codeRef.current.style.display = "block";
     }
 
     codeRef.current.style.display = "block";
