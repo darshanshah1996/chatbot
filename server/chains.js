@@ -7,7 +7,7 @@ import { createReactAgent, AgentExecutor } from "langchain/agents";
 import { LLMChain } from "langchain/chains";
 import Groq from "groq-sdk";
 
-import { modelServices, ollamaModels, groqModels } from "./data/models.js";
+import { modelServices, groqModels } from "./data/models.js";
 import api from "./data/api.js";
 import promptTemplate from "./template.js";
 import { LaunchApplicationUsingTool } from "./tools.js";
@@ -163,6 +163,7 @@ export async function launchApplications(res) {
     tools: tools,
     returnIntermediateSteps: true,
     handleParsingErrors: true,
+    maxIterations: 1,
   });
 
   return agentExecutor;
