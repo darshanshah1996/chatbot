@@ -3,7 +3,7 @@ import server from "../Data/server";
 
 export async function queryLLM(query, selectedModel) {
   const response = await axios.post(
-    `${server.baseUrl}/chats`,
+    `${server.baseUrl}/chat`,
     {
       query,
       selectedModel,
