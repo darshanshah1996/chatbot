@@ -1,14 +1,14 @@
-import { useContext, useEffect, useRef, useState } from "react";
+import { useContext } from "react";
 
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import ListSubheader from "@mui/material/ListSubheader";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
-import { getGroqModelList } from "../../../Services/model";
 import { SettingsContext } from "../../../Context/SettingsContext";
 import styles from "./ModelDropdown.module.css";
 import modelData from "../../../Data/model_data";
+import { ToastContext } from "../../../Context/ToastContext";
 
 export default function ModelDropdown() {
   const {
@@ -18,11 +18,10 @@ export default function ModelDropdown() {
     modelList,
     ollamaModelList,
   } = useContext(SettingsContext);
+  const { setToast } = useContext(ToastContext);
   let selection;
 
   function updateModel(modelName) {
-    console.log(`model = ${modelName}`);
-
     if (modelList.includes(modelName)) {
       updatedSelectedModel({
         modelService: modelData.groqService,
@@ -34,6 +33,11 @@ export default function ModelDropdown() {
         model: modelName,
       });
     }
+    updateShowSidebar(false);
+    setToast({
+      message: "Model updated successfully",
+      type: "Success",
+    });
   }
 
   return (
@@ -87,7 +91,6 @@ export default function ModelDropdown() {
       <button
         onClick={() => {
           updateModel(selection);
-          updateShowSidebar(false);
         }}
         className={styles.saveChanges}
       >
