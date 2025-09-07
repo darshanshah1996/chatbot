@@ -2,17 +2,17 @@ import styles from "./Microphone.module.css";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMicrophone } from "@fortawesome/free-solid-svg-icons";
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useContext, useRef } from "react";
 import { speechToText } from "../../../Services/chat";
 import { ChatContext } from "../../../Context/ChatContext";
+import { ToastContext } from "../../../Context/ToastContext";
 
 export default React.memo(({ updateChatHistory }) => {
   console.log("Microphone intialized");
 
   const { isLLMGeneratingResponse } = useContext(ChatContext);
-
+  const { setToast } = useContext(ToastContext);
   const recordButton = useRef(null);
-
   let recording = false;
   let audioChunks = [];
   let mediaRecorder;
@@ -42,14 +42,25 @@ export default React.memo(({ updateChatHistory }) => {
 
       setTimeout(async () => {
         console.log(audioChunks.length);
+
         const blobObj = new Blob(audioChunks, { type: "audio/webm" });
         const file = new File([blobObj], "recording.webm", {
           type: "audio/webm",
         });
 
-        updateChatHistory(await speechToText(file));
+        try {
+          const audioFile = await speechToText(file);
 
-        audioChunks = [];
+          updateChatHistory(audioFile);
+          audioChunks = [];
+        } catch (error) {
+          console.log(error);
+
+          setToast({
+            type: "error",
+            message: "Something went wrong",
+          });
+        }
 
         recordButton.current.disabled = false;
       }, 350);

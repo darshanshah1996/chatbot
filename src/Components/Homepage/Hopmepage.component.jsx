@@ -13,10 +13,13 @@ import { ChatContext } from "../../Context/ChatContext";
 import { SettingsContext } from "../../Context/SettingsContext";
 import Sidebar from "../Sidebar/Sidebar.component";
 import { getGroqModelList, getOllamaModelList } from "../../Services/model";
+import Toast from "../Toast/Toast.component";
+import { ToastContext } from "../../Context/ToastContext";
 
 export default function Homepage() {
   const { updateIsLLMGeneratingResponse, updateChatMessages, chatMessages } =
     useContext(ChatContext);
+  const { toast, setToast } = useContext(ToastContext);
   const {
     showSiedbar,
     updateShowSidebar,
@@ -56,29 +59,47 @@ export default function Homepage() {
       <ThinkingDots key={messages.length} />,
     ]);
 
-    const llmResponse = await chatServices.queryLLM(message, selectedModel);
+    try {
+      const llmResponse = await chatServices.queryLLM(message, selectedModel);
 
-    updateChatMessages((messages) => {
-      if (messages[messages.length - 1].type === ThinkingDots) {
-        messages.pop();
-      }
+      updateChatMessages((messages) => {
+        if (messages[messages.length - 1].type === ThinkingDots) {
+          messages.pop();
+        }
 
-      return [
-        ...messages,
+        return [
+          ...messages,
 
-        <ChatMessage
-          role="llm"
-          message={llmResponse}
-          key={new Date().getTime()}
-        />,
-      ];
-    });
+          <ChatMessage
+            role="llm"
+            message={llmResponse}
+            key={new Date().getTime()}
+          />,
+        ];
+      });
+    } catch (error) {
+      console.log(error);
+
+      updateChatMessages((messages) => {
+        if (messages[messages.length - 1].type === ThinkingDots) {
+          messages.pop();
+        }
+
+        return [...messages];
+      });
+
+      setToast({
+        message: "Something went wrong",
+        type: "Error",
+      });
+    }
 
     updateIsLLMGeneratingResponse(false);
   };
 
   return (
     <div className={`${styles.container} homepage`}>
+      <Toast id={1} message="Loading..." />
       <p className={`${styles.modelInfo}`}>
         {`Current selected model: ${selectedModel.model}`}
       </p>
