@@ -1,0 +1,13 @@
+{
+  "excludeGroqModels": [
+    "allam",
+    "whisper",
+    "playai",
+    "compound",
+    "tts",
+    "arabic",
+    "guard"
+  ],
+  "excludeOllamaModels": ["mxbai"],
+  "appAlias": {}
+}
