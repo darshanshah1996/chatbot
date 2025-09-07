@@ -1,9 +1,9 @@
-import fs from "fs";
+import { loadAppConfig } from "./config.js";
 
-const config = JSON.parse(fs.readFileSync("D:\\application.json"));
+const appConfig = loadAppConfig();
 
 export function getGroqFilteredModels(models) {
-  const groqExcludeModels = config.excludeGroqModels;
+  const groqExcludeModels = appConfig.excludeGroqModels;
 
   const groqExcludedModelsRegex = new RegExp(groqExcludeModels.join("|"), "i");
 
@@ -11,7 +11,7 @@ export function getGroqFilteredModels(models) {
 }
 
 export function getOllamaFilteredModels(models) {
-  const ollamaExcludeModels = config.excludeOllamaModels;
+  const ollamaExcludeModels = appConfig.excludeOllamaModels;
   const ollamaExcludedModelsRegex = new RegExp(
     ollamaExcludeModels.join("|"),
     "i"
