@@ -30,11 +30,11 @@ export default React.memo(({ message, role }) => {
 
   if (role === "llm") {
     message.split(/<\/SYNTAXHIGHLIGHTER>/).forEach((entry) => {
-      let snippet = entry.match(/<SYNTAXHIGHLIGHTER .*>(.*)/s);
+      const codeSnippet = entry.match(/<SYNTAXHIGHLIGHTER .*>(.*)/s);
 
-      if (snippet !== null) {
+      if (codeSnippet !== null) {
         codeSnippetList.push(
-          snippet[0].replace(/<SYNTAXHIGHLIGHTER .*>/, "").trim()
+          codeSnippet[0].replace(/<SYNTAXHIGHLIGHTER .*>/, "").trim()
         );
       }
     });
@@ -42,9 +42,6 @@ export default React.memo(({ message, role }) => {
 
   useEffect(() => {
     if (role === "llm") {
-      console.log(message);
-      console.log(codeSnippetList);
-
       const codeSnippetNodesList = Array.from(
         document.querySelectorAll("SYNTAXHIGHLIGHTER:not(.format-code)")
       );
