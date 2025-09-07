@@ -21,3 +21,16 @@
 p {
   white-space: pre-wrap;
 }
+
+.codeSnippet {
+  position: relative;
+}
+
+.copyToClipboard {
+  position: absolute;
+  right: 0px;
+  bottom: 0%;
+  padding: 0.15rem 0.25rem;
+  background-color: rgb(63, 61, 61);
+  color: white;
+}
