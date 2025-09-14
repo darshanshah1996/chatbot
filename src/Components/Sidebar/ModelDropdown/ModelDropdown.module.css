@@ -6,10 +6,20 @@
   flex-direction: column;
 }
 
+.container > div {
+  margin-left: 0px;
+}
+
 .saveChanges {
   background-color: grey;
   color: white;
   margin-top: 0.5rem;
   padding: 0.5rem 1rem;
   align-self: flex-start;
+}
+
+.includeOllamaCheckbox {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
 }
