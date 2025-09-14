@@ -19,7 +19,7 @@ import { ToastContext } from "../../Context/ToastContext";
 export default function Homepage() {
   const { updateIsLLMGeneratingResponse, updateChatMessages, chatMessages } =
     useContext(ChatContext);
-  const { toast, setToast } = useContext(ToastContext);
+  const { setToast } = useContext(ToastContext);
   const {
     showSiedbar,
     updateShowSidebar,
@@ -35,6 +35,11 @@ export default function Homepage() {
       })
       .catch((error) => {
         console.log(error);
+
+        setToast({
+          message: "Error fetching groq models",
+          type: "Error",
+        });
       });
 
     getOllamaModelList()
@@ -43,6 +48,11 @@ export default function Homepage() {
       })
       .catch((error) => {
         console.log(error);
+
+        setToast({
+          message: "Error fetching ollama models",
+          type: "Error",
+        });
       });
   }, []);
 
@@ -99,7 +109,7 @@ export default function Homepage() {
 
   return (
     <div className={`${styles.container} homepage`}>
-      <Toast id={1} message="Loading..." />
+      <Toast />
       <p className={`${styles.modelInfo}`}>
         {`Current selected model: ${selectedModel.model}`}
       </p>
