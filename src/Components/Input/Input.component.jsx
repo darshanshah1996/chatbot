@@ -8,7 +8,6 @@ import { ChatContext } from "../../Context/ChatContext";
 
 export default function ChatInput({ updateChatHistory }) {
   const { isLLMGeneratingResponse } = useContext(ChatContext);
-
   const [queryState, updateQueryState] = useState(false);
   const inputRef = useRef(null);
 
