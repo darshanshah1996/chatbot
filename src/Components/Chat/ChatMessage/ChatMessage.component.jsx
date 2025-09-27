@@ -27,8 +27,11 @@ async function copyToClipboard(text, ref) {
 export default React.memo(({ message, role }) => {
   const codeRef = useRef();
   const codeSnippetList = [];
+  let messagePurified;
 
   if (role === "llm") {
+    messagePurified = message.replace(/<script>/g, "<>");
+
     message.split(/<\/SYNTAXHIGHLIGHTER>/).forEach((entry) => {
       const codeSnippet = entry.match(/<SYNTAXHIGHLIGHTER .*>(.*)/s);
 
@@ -71,9 +74,9 @@ export default React.memo(({ message, role }) => {
           </div>
         );
       }
-    }
 
-    codeRef.current.style.display = "block";
+      codeRef.current.style.display = "block";
+    }
 
     document.querySelector("div.chat").scrollTop =
       document.querySelector("div.chat").scrollHeight;
@@ -85,11 +88,14 @@ export default React.memo(({ message, role }) => {
         role === "llm" ? styles.llm : styles.user
       } `}
     >
-      <div
-        ref={codeRef}
-        dangerouslySetInnerHTML={{ __html: message }}
-        style={{ display: "none" }}
-      ></div>
+      {role === "llm" && (
+        <div
+          ref={codeRef}
+          dangerouslySetInnerHTML={{ __html: messagePurified }}
+          style={{ display: "none" }}
+        ></div>
+      )}
+      {role === "user" && <p>{message}</p>}
     </div>
   );
 });

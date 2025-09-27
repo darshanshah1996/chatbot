@@ -11,6 +11,7 @@ export const SettingsContextProvider = ({ children }) => {
     modelService: modelData.groqService,
     model: modelData.defaultModel,
   });
+  const [includeOllamaModels, setIncludeOllamaModels] = useState(false);
 
   return (
     <SettingsContext.Provider
@@ -23,6 +24,8 @@ export const SettingsContextProvider = ({ children }) => {
         modelList,
         ollamaModelList,
         setOllamaModelList,
+        includeOllamaModels,
+        setIncludeOllamaModels,
       }}
     >
       {children}

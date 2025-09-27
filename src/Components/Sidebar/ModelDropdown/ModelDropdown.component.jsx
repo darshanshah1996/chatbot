@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useRef } from "react";
 
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
@@ -9,6 +9,8 @@ import { SettingsContext } from "../../../Context/SettingsContext";
 import styles from "./ModelDropdown.module.css";
 import modelData from "../../../Data/model_data";
 import { ToastContext } from "../../../Context/ToastContext";
+import Tooltip from "../../Tooltip/Tooltip.component";
+import { getOllamaModelList } from "../../../Services/model";
 
 export default function ModelDropdown() {
   const {
@@ -17,27 +19,76 @@ export default function ModelDropdown() {
     updateShowSidebar,
     modelList,
     ollamaModelList,
+    includeOllamaModels,
+    setIncludeOllamaModels,
+    setOllamaModelList,
   } = useContext(SettingsContext);
   const { setToast } = useContext(ToastContext);
-  let selection;
+  const includeOllamaCheckbox = useRef(null);
+  const modelSelectionDropdown = useRef(null);
+  let selection = selectedModel.model;
 
   function updateModel(modelName) {
-    if (modelList.includes(modelName)) {
-      updatedSelectedModel({
-        modelService: modelData.groqService,
-        model: modelName,
-      });
-    } else {
-      updatedSelectedModel({
-        modelService: modelData.ollamaService,
-        model: modelName,
+    const isOllamaCheckboxChecked = includeOllamaCheckbox.current.checked;
+
+    if (modelName !== selectedModel.model) {
+      if (modelList.includes(modelName)) {
+        updatedSelectedModel({
+          modelService: modelData.groqService,
+          model: modelName,
+        });
+      } else {
+        updatedSelectedModel({
+          modelService: modelData.ollamaService,
+          model: modelName,
+        });
+      }
+      updateShowSidebar(false);
+      setToast({
+        message: "Model updated successfully",
+        type: "Success",
       });
     }
-    updateShowSidebar(false);
-    setToast({
-      message: "Model updated successfully",
-      type: "Success",
-    });
+
+    if (isOllamaCheckboxChecked !== includeOllamaModels) {
+      if (isOllamaCheckboxChecked) {
+        getOllamaModelList()
+          .then((models) => {
+            setOllamaModelList(models);
+            setIncludeOllamaModels(isOllamaCheckboxChecked);
+            setToast({
+              message: "Model list updated successfully",
+              type: "Success",
+            });
+          })
+          .catch((error) => {
+            console.log(error);
+
+            includeOllamaCheckbox.current.checked = false;
+
+            setToast({
+              message: "Error fetching ollama models",
+              type: "Error",
+            });
+          });
+      } else {
+        setOllamaModelList([]);
+        setIncludeOllamaModels(isOllamaCheckboxChecked);
+
+        if (!modelList.includes(modelName)) {
+          updatedSelectedModel({
+            modelService: modelData.groqService,
+            model: modelData.defaultModel,
+          });
+          selection = modelData.defaultModel;
+          updateShowSidebar(false);
+        }
+        setToast({
+          message: "Model list updated successfully",
+          type: "Success",
+        });
+      }
+    }
   }
 
   return (
@@ -61,9 +112,6 @@ export default function ModelDropdown() {
           "& .MuiInputBase-root": {
             width: "70% !important",
           },
-          "& .MuiFormControl-root": {
-            margin: "0px !important",
-          },
         }}
       >
         <InputLabel htmlFor="grouped-select">Model</InputLabel>
@@ -71,23 +119,34 @@ export default function ModelDropdown() {
           onChange={(e) => {
             selection = e.target.value;
           }}
+          ref={modelSelectionDropdown}
           defaultValue={selectedModel.model}
           id="grouped-select"
           label="Model"
         >
-          {modelList && <ListSubheader>Groq</ListSubheader>}
-          {modelList &&
+          {modelList.length > 0 && <ListSubheader>Groq</ListSubheader>}
+          {modelList.length > 0 &&
             modelList.map((model) => (
               <MenuItem value={model}>{model}</MenuItem>
             ))}
 
-          {ollamaModelList && <ListSubheader>Ollama</ListSubheader>}
-          {ollamaModelList &&
+          {ollamaModelList.length > 0 && <ListSubheader>Ollama</ListSubheader>}
+          {ollamaModelList.length > 0 &&
             ollamaModelList.map((model) => (
               <MenuItem value={model}>{model}</MenuItem>
             ))}
         </Select>
       </FormControl>
+      <section className={`${styles.includeOllamaCheckbox}`}>
+        <input
+          type="checkbox"
+          id="ollamaCheckbox"
+          ref={includeOllamaCheckbox}
+          defaultChecked={includeOllamaModels}
+        />
+        <label htmlFor="ollamaCheckbox">Include Ollama models</label>
+        <Tooltip text="Ensure Ollama is running on your system before enabling this option" />
+      </section>
       <button
         onClick={() => {
           updateModel(selection);

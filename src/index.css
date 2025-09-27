@@ -33,3 +33,7 @@ body {
 .hide {
   display: none !important;
 }
+
+input[type="checkbox"] {
+  cursor: pointer;
+}
