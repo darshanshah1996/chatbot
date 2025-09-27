@@ -41,19 +41,6 @@ export default function Homepage() {
           type: "Error",
         });
       });
-
-    getOllamaModelList()
-      .then((models) => {
-        setOllamaModelList(models);
-      })
-      .catch((error) => {
-        console.log(error);
-
-        setToast({
-          message: "Error fetching ollama models",
-          type: "Error",
-        });
-      });
   }, []);
 
   const updateChatHistory = async (message) => {

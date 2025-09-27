@@ -74,6 +74,7 @@ export default function ModelDropdown() {
       } else {
         setOllamaModelList([]);
         setIncludeOllamaModels(isOllamaCheckboxChecked);
+
         if (!modelList.includes(modelName)) {
           updatedSelectedModel({
             modelService: modelData.groqService,
