@@ -1,4 +1,4 @@
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useContext } from "react";
 
 import styles from "./Toast.module.css";
 import { ToastContext } from "../../Context/ToastContext";

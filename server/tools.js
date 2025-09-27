@@ -1,8 +1,12 @@
 import { Tool } from "langchain/tools";
 import childProcess from "child_process";
-import fs from "fs";
+import path from "path";
+import os from "os";
 
-const appConfig = JSON.parse(fs.readFileSync("D:\\application.json"));
+import { loadAppConfig } from "./helper/config.js";
+
+const appConfig = loadAppConfig();
+const appBasePath = path.join(os.homedir(), "Desktop");
 
 export class LaunchApplicationUsingTool extends Tool {
   name = "Launch Application";
@@ -30,30 +34,39 @@ export class LaunchApplicationUsingTool extends Tool {
 
     if (!this.#toolCalled) {
       this.#toolCalled = true;
+
       appName = appName.toLowerCase();
 
       console.log("Tool Called");
 
-      const applicationDetails = appConfig[appName];
+      const applicationDetails = appConfig.appAlias[appName];
 
       if (applicationDetails === undefined) {
         console.log(`Application ${appName} not found in alias list.`);
       } else {
         appName = applicationDetails.name;
 
-        if (applicationDetails.lauchAfterBurner) {
+        if (applicationDetails.preRequisite) {
           const result = await this.executeCommand(
             `tasklist | findstr /I "MSIAfterburner.exe"`
           );
 
           if (!result) {
-            await this.executeCommand(`"${appConfig.basePath}\/msi".lnk`);
+            const preRequisiteApp = appConfig.appAlias[
+              applicationDetails.preRequisite
+            ]
+              ? appConfig.appAlias[applicationDetails.preRequisite].name
+              : applicationDetails.preRequisite;
+
+            await this.executeCommand(
+              `"${appBasePath}\/${preRequisiteApp}".lnk`
+            );
           }
         }
       }
 
       const result = await this.executeCommand(
-        `"${appConfig.basePath}\/${appName}".lnk`
+        `"${appBasePath}\/${appName}".lnk`
       );
 
       if (result) {
