@@ -20,8 +20,13 @@ export default function Homepage() {
   const { updateIsLLMGeneratingResponse, updateChatMessages, chatMessages } =
     useContext(ChatContext);
   const { setToast } = useContext(ToastContext);
-  const { showSiedbar, updateShowSidebar, selectedModel, setModelList } =
-    useContext(SettingsContext);
+  const {
+    showSiedbar,
+    updateShowSidebar,
+    selectedModel,
+    setModelList,
+    setOllamaModelList,
+  } = useContext(SettingsContext);
 
   useEffect(() => {
     getGroqModelList()
@@ -33,6 +38,19 @@ export default function Homepage() {
 
         setToast({
           message: "Error fetching groq models",
+          type: "Error",
+        });
+      });
+
+    getOllamaModelList()
+      .then((models) => {
+        setOllamaModelList(models);
+      })
+      .catch((error) => {
+        console.log(error);
+
+        setToast({
+          message: "Error fetching ollama models",
           type: "Error",
         });
       });
