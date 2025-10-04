@@ -8,8 +8,8 @@ import { getRouterChain, routes, getTextFromSpeech } from "./chains.js";
 import { getFormattedRoutes } from "./data/route_data.js";
 import api from "./data/api.js";
 import {
-  getGroqFilteredModels,
-  getOllamaFilteredModels,
+  getFilteredGroqModels,
+  getFilteredOllamaModels,
 } from "./helper/filter_model.js";
 
 const appServer = express();
@@ -55,7 +55,7 @@ appServer.get("/groq-models", async (req, res) => {
     const models = modelsData["data"];
     const groqModels = models.map((model) => model.id);
 
-    const filteredModels = getGroqFilteredModels(groqModels);
+    const filteredModels = getFilteredGroqModels(groqModels);
 
     res.status(200).json({
       models: filteredModels,
@@ -77,7 +77,7 @@ appServer.get("/ollama-models", async (req, res) => {
     const models = modelsData["models"];
     const ollamaModels = models.map((model) => model.name);
 
-    const filteredModels = getOllamaFilteredModels(ollamaModels);
+    const filteredModels = getFilteredOllamaModels(ollamaModels);
 
     res.status(200).json({
       models: filteredModels,
