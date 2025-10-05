@@ -25,7 +25,7 @@ export default function Homepage() {
     updateShowSidebar,
     selectedModel,
     setModelList,
-    setOllamaModelList,
+    modelList,
   } = useContext(SettingsContext);
 
   useEffect(() => {
@@ -42,6 +42,8 @@ export default function Homepage() {
         });
       });
   }, []);
+
+  if (modelList.length === 0) return;
 
   const updateChatHistory = async (message) => {
     if (!message || message.length === 0) return;
@@ -98,8 +100,9 @@ export default function Homepage() {
     <div className={`${styles.container} homepage`}>
       <Toast />
       <p className={`${styles.modelInfo}`}>
-        {`Current selected model: ${selectedModel.model}`}
+        {`Selected model: ${selectedModel.model}`}
       </p>
+
       <button
         className={`${styles.hamburgerMenu} settings ${
           showSiedbar ? "hide" : ""

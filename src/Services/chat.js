@@ -1,5 +1,5 @@
 import axios from "axios";
-import server from "../Data/server";
+import server from "../../server_config.js";
 
 export async function queryLLM(query, selectedModel) {
   const response = await axios.post(

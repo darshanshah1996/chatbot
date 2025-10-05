@@ -7,7 +7,7 @@ import { SettingsContext } from "../../Context/SettingsContext";
 export default function Welcome() {
   const [userName, updateUserName] = useState("");
 
-  const { showSiedbar, updateShowSidebar } = useContext(SettingsContext);
+  const { showSiedbar } = useContext(SettingsContext);
 
   useEffect(() => {
     if (userName.length === 0) {
@@ -17,7 +17,7 @@ export default function Welcome() {
         updateUserName(username);
       })();
     }
-  }, [userName, updateUserName]);
+  }, []);
 
   return (
     <div className={`${styles.container} welcome`}>

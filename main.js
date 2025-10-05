@@ -3,10 +3,29 @@ import path from "path";
 import log from "electron-log/main.js";
 import { dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import os from "os";
+import fs from "fs";
 
 let mainWindow;
 log.initialize();
 const __dirname = dirname(fileURLToPath(import.meta.url));
+
+function initializeServerBasePath() {
+  const networkDetails = os.networkInterfaces();
+  const ethernetDetails = networkDetails["Ethernet"];
+  const ipv4ddress = ethernetDetails.find(
+    (ethernetDetail) => ethernetDetail.family === "IPv4"
+  ).address;
+
+  const serverDetails = `export default {
+    baseUrl: "http://${ipv4ddress}:3000", // ip addreess will be set at run time as per your system ip address
+  };
+  `;
+
+  fs.writeFileSync("./server_config.js", serverDetails, {
+    encoding: "utf-8",
+  });
+}
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -31,6 +50,7 @@ function startServer() {
   });
 
   server.on("spawn", () => {
+    initializeServerBasePath();
     createWindow();
 
     log.info("server spawned");

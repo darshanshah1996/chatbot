@@ -18,4 +18,15 @@
 
 .title {
   font-size: 2rem;
+  text-align: start;
+}
+
+.description {
+  text-align: start;
+}
+
+@media screen and (max-width: 900px) {
+  .container {
+    width: 70%;
+  }
 }
