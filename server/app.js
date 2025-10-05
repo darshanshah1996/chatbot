@@ -1,8 +1,9 @@
 import express from "express";
 import os from "os";
-
 import morgan from "morgan";
 import multer from "multer";
+import appRootPath from "app-root-path";
+import path from "path";
 
 import { getRouterChain, routes, getTextFromSpeech } from "./chains.js";
 import { getFormattedRoutes } from "./data/route_data.js";
@@ -11,20 +12,9 @@ import {
   getFilteredGroqModels,
   getFilteredOllamaModels,
 } from "./helper/filter_model.js";
+import { authenticateDevice } from "./helper/autenticate.js";
 
 const appServer = express();
-
-console.log("=================Starting Server=================");
-
-appServer.use(express.json());
-
-appServer.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
-  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
-  next();
-});
-
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, "./server/uploads/");
@@ -33,12 +23,35 @@ const storage = multer.diskStorage({
     cb(null, Date.now() + "-" + file.originalname);
   },
 });
+const upload = multer({ storage: storage });
+
+console.log("=================Starting Server=================");
+
+appServer.use(express.json());
 
 appServer.use(morgan("dev"));
 
-appServer.get("/", (req, res) => {
+appServer.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  next();
+});
+
+appServer.use(async (req, res, next) => {
+  const isDeviceAllowed = await authenticateDevice(req.ip);
+
+  if (!isDeviceAllowed) res.status(401).json({ error: "Unauthorized Device" });
+  else next();
+});
+
+appServer.get("/", async (req, res) => {
   res.send("Chatbot Server 1.0");
 });
+
+const filePath = path.join(appRootPath.path, "../dist");
+
+appServer.use("/chatbot", express.static(filePath));
 
 appServer.get("/groq-models", async (req, res) => {
   try {
@@ -127,8 +140,6 @@ appServer.post("/chat", async (req, res) => {
     res.end();
   }
 });
-
-const upload = multer({ storage: storage });
 
 appServer.post(
   "/speech-to-text",
