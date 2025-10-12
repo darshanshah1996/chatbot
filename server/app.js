@@ -1,6 +1,5 @@
 import express from "express";
 import os from "os";
-
 import morgan from "morgan";
 import multer from "multer";
 
@@ -94,6 +93,8 @@ appServer.get("/user", (req, res) => {
     userName,
   });
 });
+
+appServer.use("/chatbot", express.static("../dist"));
 
 appServer.post("/chat", async (req, res) => {
   const query = req.body.query;
