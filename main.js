@@ -1,8 +1,9 @@
-import { app, BrowserWindow, utilityProcess } from "electron";
+import { app, BrowserWindow, utilityProcess, ipcMain } from "electron";
 import path from "path";
 import log from "electron-log/main.js";
 import { dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import os from "os";
 
 let mainWindow;
 log.initialize();
@@ -14,6 +15,7 @@ function createWindow() {
     height: 1080,
     webPreferences: {
       nodeIntegration: true,
+      preload: path.join(__dirname, "preload.mjs"),
     },
   });
 
@@ -22,12 +24,21 @@ function createWindow() {
   mainWindow.on("closed", function () {
     mainWindow = null;
   });
+
+  mainWindow.webContents.openDevTools();
 }
 
 function startServer() {
   const server = utilityProcess.fork(path.join(__dirname, "./server/app.js"), {
     stdio: "pipe",
     stderr: "pipe",
+  });
+
+  ipcMain.handle("get-system-ip-address", () => {
+    const networkDetails = os.networkInterfaces();
+
+    return networkDetails.Ethernet.find((network) => network.family === "IPv4")
+      .address;
   });
 
   server.on("spawn", () => {
@@ -45,7 +56,7 @@ function startServer() {
   });
 }
 
-app.on("ready", startServer);
+app.whenReady().then(startServer);
 
 app.on("window-all-closed", function () {
   if (process.platform !== "darwin") {
