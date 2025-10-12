@@ -2,7 +2,7 @@ import { loadAppConfig } from "./config.js";
 
 const appConfig = loadAppConfig();
 
-export function getGroqFilteredModels(models) {
+export function getFilteredGroqModels(models) {
   const groqExcludeModels = appConfig.excludeGroqModels;
 
   const groqExcludedModelsRegex = new RegExp(groqExcludeModels.join("|"), "i");
@@ -10,7 +10,7 @@ export function getGroqFilteredModels(models) {
   return models.filter((model) => !groqExcludedModelsRegex.test(model));
 }
 
-export function getOllamaFilteredModels(models) {
+export function getFilteredOllamaModels(models) {
   const ollamaExcludeModels = appConfig.excludeOllamaModels;
   const ollamaExcludedModelsRegex = new RegExp(
     ollamaExcludeModels.join("|"),
