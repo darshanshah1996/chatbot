@@ -20,13 +20,13 @@ export default function Model({ updatedSelectedModel, selectedModel }) {
   function updateModel(modelName) {
     if (modelList.includes(modelName)) {
       updatedSelectedModel({
-        modelService: modelData.groqService,
-        model: modelName,
+        modelProvider: modelData.llmProviders.groq,
+        name: modelName,
       });
     } else {
       updatedSelectedModel({
-        modelService: modelData.ollamaService,
-        model: modelName,
+        modelProvider: modelData.ollamaService,
+        name: modelName,
       });
     }
   }

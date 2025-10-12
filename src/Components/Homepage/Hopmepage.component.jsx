@@ -20,18 +20,13 @@ export default function Homepage() {
   const { updateIsLLMGeneratingResponse, updateChatMessages, chatMessages } =
     useContext(ChatContext);
   const { setToast } = useContext(ToastContext);
-  const {
-    showSiedbar,
-    updateShowSidebar,
-    selectedModel,
-    setModelList,
-    setOllamaModelList,
-  } = useContext(SettingsContext);
+  const { showSiedbar, updateShowSidebar, selectedModel, setGroqModelList } =
+    useContext(SettingsContext);
 
   useEffect(() => {
     getGroqModelList()
       .then((models) => {
-        setModelList(models);
+        setGroqModelList(models);
       })
       .catch((error) => {
         console.log(error);
@@ -98,7 +93,7 @@ export default function Homepage() {
     <div className={`${styles.container} homepage`}>
       <Toast />
       <p className={`${styles.modelInfo}`}>
-        {`Current selected model: ${selectedModel.model}`}
+        {`Current selected model: ${selectedModel.name}`}
       </p>
       <button
         className={`${styles.hamburgerMenu} settings ${

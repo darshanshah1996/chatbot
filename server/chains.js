@@ -7,13 +7,23 @@ import { createReactAgent, AgentExecutor } from "langchain/agents";
 import { LLMChain } from "langchain/chains";
 import Groq from "groq-sdk";
 
-import { modelServices, groqModels } from "./data/models.js";
+import { llmProviders, groqModels } from "./data/models.js";
 import api from "./data/api.js";
 import promptTemplate from "./template.js";
 import { LaunchApplicationUsingTool } from "./tools.js";
 import fs from "fs";
 
-const memory = initializeMemory(modelServices.groq, groqModels.scout);
+function initializeMemory(serviceName, modelName) {
+  const model = initializeNonStreamModel(serviceName, modelName, 0.6);
+
+  return new ConversationSummaryBufferMemory({
+    memoryKey: "chat_history",
+    llm: model,
+    maxTokenLimit: 15000,
+  });
+}
+
+const memory = initializeMemory(llmProviders.groq, groqModels.scout);
 const groq = new Groq({ apiKey: api.GROQ_API_KEY });
 const parser = new StringOutputParser();
 
@@ -21,7 +31,7 @@ function initializeNonStreamModel(serviceName, modelName, temperature = 0) {
   let model;
 
   switch (serviceName) {
-    case modelServices.groq:
+    case llmProviders.groq:
       model = new ChatGroq({
         apiKey: api.GROQ_API_KEY,
         model: modelName,
@@ -30,7 +40,7 @@ function initializeNonStreamModel(serviceName, modelName, temperature = 0) {
 
       break;
 
-    case modelServices.ollama:
+    case llmProviders.ollama:
       model = new ChatOllama({
         model: modelName,
         temperature: temperature,
@@ -44,16 +54,6 @@ function initializeNonStreamModel(serviceName, modelName, temperature = 0) {
   }
 
   return model;
-}
-
-function initializeMemory(serviceName, modelName) {
-  const model = initializeNonStreamModel(serviceName, modelName, 0.6);
-
-  return new ConversationSummaryBufferMemory({
-    memoryKey: "chat_history",
-    llm: model,
-    maxTokenLimit: 15000,
-  });
 }
 
 function initializeStreamModel(serviceName, modelName, res) {
@@ -76,7 +76,7 @@ function initializeStreamModel(serviceName, modelName, res) {
   let model;
 
   switch (serviceName) {
-    case modelServices.groq:
+    case llmProviders.groq:
       model = new ChatGroq({
         apiKey: api.GROQ_API_KEY,
         model: modelName,
@@ -87,7 +87,7 @@ function initializeStreamModel(serviceName, modelName, res) {
 
       break;
 
-    case modelServices.ollama:
+    case llmProviders.ollama:
       model = new ChatOllama({
         model: modelName,
         streaming: true,
@@ -123,7 +123,7 @@ export function getCodeChain(res, modelService, modelName) {
 
 export function getRouterChain() {
   const template = PromptTemplate.fromTemplate(promptTemplate.routerTemplate);
-  const model = initializeNonStreamModel(modelServices.groq, groqModels.scout);
+  const model = initializeNonStreamModel(llmProviders.groq, groqModels.scout);
 
   const chain = template.pipe(model).pipe(parser);
 
@@ -148,7 +148,7 @@ export async function launchApplications(res) {
   const template = PromptTemplate.fromTemplate(
     promptTemplate.launchApplication
   );
-  const llm = initializeStreamModel(modelServices.groq, groqModels.scout, res);
+  const llm = initializeStreamModel(llmProviders.groq, groqModels.scout, res);
 
   const tools = [new LaunchApplicationUsingTool()];
 

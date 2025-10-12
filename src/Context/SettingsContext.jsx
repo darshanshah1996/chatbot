@@ -1,15 +1,16 @@
 import { createContext, useState } from "react";
 import modelData from "../Data/model_data";
+import { groqModels } from "../../server/data/models";
 
 export const SettingsContext = createContext({});
 
 export const SettingsContextProvider = ({ children }) => {
   const [showSiedbar, updateShowSidebar] = useState(false);
-  const [modelList, setModelList] = useState([]);
+  const [groqModelList, setGroqModelList] = useState([]);
   const [ollamaModelList, setOllamaModelList] = useState([]);
   const [selectedModel, updatedSelectedModel] = useState({
-    modelService: modelData.groqService,
-    model: modelData.defaultModel,
+    modelProvider: modelData.llmProviders.groq,
+    name: modelData.defaultModel,
   });
   const [includeOllamaModels, setIncludeOllamaModels] = useState(false);
 
@@ -20,8 +21,8 @@ export const SettingsContextProvider = ({ children }) => {
         updateShowSidebar,
         selectedModel,
         updatedSelectedModel,
-        setModelList,
-        modelList,
+        groqModelList,
+        setGroqModelList,
         ollamaModelList,
         setOllamaModelList,
         includeOllamaModels,

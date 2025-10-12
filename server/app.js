@@ -99,8 +99,8 @@ appServer.post("/chat", async (req, res) => {
   const query = req.body.query;
 
   console.log("======ModelDetails===========");
-  const { modelService, model } = req.body.selectedModel;
-  console.log(modelService, model);
+  const { modelProvider, name } = req.body.selectedModel;
+  console.log(modelProvider, name);
 
   res.setHeader("Content-Type", "text/event-stream");
   res.setHeader("Cache-Control", "no-cache");
@@ -116,7 +116,7 @@ appServer.post("/chat", async (req, res) => {
 
   console.log(`=========Route ${route}===========`);
 
-  const chain = await routes[route](res, modelService, model);
+  const chain = await routes[route](res, modelProvider, name);
 
   try {
     await chain.invoke({

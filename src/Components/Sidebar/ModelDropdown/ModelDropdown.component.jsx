@@ -1,4 +1,4 @@
-import { useContext, useRef } from "react";
+import { useContext, useRef, useState } from "react";
 
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
@@ -17,7 +17,7 @@ export default function ModelDropdown() {
     selectedModel,
     updatedSelectedModel,
     updateShowSidebar,
-    modelList,
+    groqModelList,
     ollamaModelList,
     includeOllamaModels,
     setIncludeOllamaModels,
@@ -26,29 +26,28 @@ export default function ModelDropdown() {
   const { setToast } = useContext(ToastContext);
   const includeOllamaCheckbox = useRef(null);
   const modelSelectionDropdown = useRef(null);
-  let selection = selectedModel.model;
+  const [selection, setSelection] = useState(selectedModel.name);
 
   function updateModel(modelName) {
     const isOllamaCheckboxChecked = includeOllamaCheckbox.current.checked;
 
-    if (modelName !== selectedModel.model) {
-      if (modelList.includes(modelName)) {
-        updatedSelectedModel({
-          modelService: modelData.groqService,
-          model: modelName,
-        });
-      } else {
-        updatedSelectedModel({
-          modelService: modelData.ollamaService,
-          model: modelName,
-        });
-      }
-      updateShowSidebar(false);
-      setToast({
-        message: "Model updated successfully",
-        type: "Success",
+    if (groqModelList.includes(modelName)) {
+      updatedSelectedModel({
+        modelProvider: modelData.llmProviders.groq,
+        name: modelName,
+      });
+    } else {
+      updatedSelectedModel({
+        modelProvider: modelData.llmProviders.ollama,
+        name: modelName,
       });
     }
+
+    updateShowSidebar(false);
+    setToast({
+      message: "Model updated successfully",
+      type: "Success",
+    });
 
     if (isOllamaCheckboxChecked !== includeOllamaModels) {
       if (isOllamaCheckboxChecked) {
@@ -75,12 +74,12 @@ export default function ModelDropdown() {
         setOllamaModelList([]);
         setIncludeOllamaModels(isOllamaCheckboxChecked);
 
-        if (!modelList.includes(modelName)) {
+        if (!groqModelList.includes(modelName)) {
           updatedSelectedModel({
-            modelService: modelData.groqService,
-            model: modelData.defaultModel,
+            modelProvider: modelData.llmProviders.groq,
+            name: modelData.defaultModel,
           });
-          selection = modelData.defaultModel;
+          setSelection(modelData.defaultModel);
           updateShowSidebar(false);
         }
         setToast({
@@ -117,16 +116,16 @@ export default function ModelDropdown() {
         <InputLabel htmlFor="grouped-select">Model</InputLabel>
         <Select
           onChange={(e) => {
-            selection = e.target.value;
+            setSelection(e.target.value);
           }}
           ref={modelSelectionDropdown}
-          defaultValue={selectedModel.model}
+          defaultValue={selectedModel.name}
           id="grouped-select"
           label="Model"
         >
-          {modelList.length > 0 && <ListSubheader>Groq</ListSubheader>}
-          {modelList.length > 0 &&
-            modelList.map((model) => (
+          {groqModelList.length > 0 && <ListSubheader>Groq</ListSubheader>}
+          {groqModelList.length > 0 &&
+            groqModelList.map((model) => (
               <MenuItem value={model}>{model}</MenuItem>
             ))}
 
@@ -151,7 +150,13 @@ export default function ModelDropdown() {
         onClick={() => {
           updateModel(selection);
         }}
-        className={styles.saveChanges}
+        disabled={selectedModel.name === selection}
+        className={styles.saveChangesButton}
+        style={
+          selectedModel.name === selection
+            ? { opacity: 0.5, cursor: "not-allowed" }
+            : {}
+        }
       >
         Save
       </button>

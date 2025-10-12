@@ -2,7 +2,7 @@ const routes = {
   ApplicationRoute:
     "Use this route when yopu wan to launch or open an application in the system",
   CodeRoute:
-    "Use this rouute when the question is associated with writing a program or code or technical questions related to programming or coding",
+    "Use this rouute when the question is associated with writing a program or code or technical questions related to programming or coding or associated with any technical concept related to computer science or programming",
   GeneralRoute:
     "Use this route when the question is related to general knowledge or general questions related to general knowledge",
 };
