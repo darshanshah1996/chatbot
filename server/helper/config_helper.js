@@ -11,6 +11,7 @@ const configFilePath = path.join(configFolder, configFile);
 (() => {
   if (!fs.existsSync(configFilePath)) {
     const configFileSource = path.join(__dirname, `../data/${configFile}`);
+
     if (!fs.existsSync(configFolder)) {
       fs.mkdirSync(configFolder);
     }

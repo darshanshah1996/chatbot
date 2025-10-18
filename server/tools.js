@@ -3,7 +3,7 @@ import childProcess from "child_process";
 import path from "path";
 import os from "os";
 
-import { loadAppConfig } from "./helper/config.js";
+import { loadAppConfig } from "./helper/config_helper.js";
 
 const appConfig = loadAppConfig();
 const appBasePath = path.join(os.homedir(), "Desktop");

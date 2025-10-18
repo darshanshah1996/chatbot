@@ -1,4 +1,4 @@
-import { loadAppConfig } from "./config.js";
+import { loadAppConfig } from "./config_helper.js";
 
 const appConfig = loadAppConfig();
 
