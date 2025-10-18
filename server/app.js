@@ -2,6 +2,8 @@ import express from "express";
 import os from "os";
 import morgan from "morgan";
 import multer from "multer";
+import appRootPath from "app-root-path";
+import path from "path";
 
 import { getRouterChain, routes, getTextFromSpeech } from "./chains.js";
 import { getFormattedRoutes } from "./data/route_data.js";
@@ -10,18 +12,29 @@ import {
   getFilteredGroqModels,
   getFilteredOllamaModels,
 } from "./helper/filter_model.js";
+import { authenticateDevice } from "./helper/autenticate.js";
 
 const appServer = express();
+const rootPath = appRootPath.path;
+const reactAppPath = path.join(rootPath, "../dist");
 
 console.log("=================Starting Server=================");
 
 appServer.use(express.json());
 
-appServer.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
-  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
-  next();
+appServer.use(async (req, res, next) => {
+  const deviceIPAddress = req.ip;
+
+  const isDeviceAllowed = await authenticateDevice(deviceIPAddress);
+
+  if (!isDeviceAllowed) res.status(401).json({ error: "Unauthorized" });
+  else {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+    res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+
+    next();
+  }
 });
 
 const storage = multer.diskStorage({
@@ -94,7 +107,7 @@ appServer.get("/user", (req, res) => {
   });
 });
 
-appServer.use("/chatbot", express.static("../dist"));
+appServer.use("/chatbot", express.static(reactAppPath));
 
 appServer.post("/chat", async (req, res) => {
   const query = req.body.query;
