@@ -9,14 +9,29 @@ import { materialDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 
 async function copyToClipboard(text, ref) {
   try {
-    await navigator.clipboard.writeText(text);
+    if (navigator?.clipboard) {
+      await navigator.clipboard.writeText(text);
+    } else {
+      console.log("Copying using lecay method");
+
+      const textarea = document.createElement("textarea");
+
+      textarea.value = text;
+      textarea.style.position = "fixed";
+      textarea.style.left = "-9999px";
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand("copy");
+      document.body.removeChild(textarea);
+    }
+
     const button = ReactDOM.createRoot(ref.target.parentNode);
 
     button.render(<Check color="#109E10" />);
 
     setTimeout(() => {
       button.render(<Clipboard />);
-    }, 500);
+    }, 1500);
   } catch (err) {
     console.error("Could not copy text: ", err);
   }
@@ -35,7 +50,7 @@ export default React.memo(({ message, role }) => {
 
       if (codeSnippet !== null) {
         codeSnippetList.push(
-          codeSnippet[0].replace(/<SYNTAXHIGHLIGHTER .*>/, "").trim()
+          codeSnippet[0].replace(/<SYNTAXHIGHLIGHTER .*>[\r\n]/, "").trimEnd()
         );
       }
     });
@@ -97,3 +112,36 @@ export default React.memo(({ message, role }) => {
     </div>
   );
 });
+
+/**    import React, { useRef } from 'react';
+
+    const CopyButton = ({ text }) => {
+      const textareaRef = useRef(null);
+
+      const handleCopy = () => {
+        // Create a temporary textarea element
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        // Move it off‑screen
+        textarea.style.position = 'fixed';
+        textarea.style.left = '-9999px';
+        document.body.appendChild(textarea);
+        // Select the text
+        textarea.select();
+        textarea.setSelectionRange(0, textarea.value.length);
+        // Execute the copy command
+        const successful = document.execCommand('copy');
+        document.body.removeChild(textarea);
+        if (successful) {
+          alert('Copied to clipboard!');
+        } else {
+          alert('Copy failed. Please copy manually.');
+        }
+      };
+
+      return (
+        <button onClick={handleCopy}>Copy</button>
+      );
+    };
+
+    export default CopyButton; */

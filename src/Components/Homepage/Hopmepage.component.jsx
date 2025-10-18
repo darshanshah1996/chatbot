@@ -24,9 +24,11 @@ export default function Homepage() {
     useContext(SettingsContext);
 
   useEffect(() => {
-    window.electronAPI.getSystemIPAddress().then((url) => {
-      console.log(url);
-    });
+    if (window.electronAPI) {
+      window.electronAPI.getSystemIPAddress().then((url) => {
+        console.log(url);
+      });
+    }
 
     getGroqModelList()
       .then((models) => {
