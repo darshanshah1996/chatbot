@@ -17,8 +17,6 @@ async function copyToClipboard(text, ref) {
     setTimeout(() => {
       button.render(<Clipboard />);
     }, 500);
-
-    console.log("Text copied to clipboard");
   } catch (err) {
     console.error("Could not copy text: ", err);
   }

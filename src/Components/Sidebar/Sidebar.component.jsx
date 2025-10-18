@@ -36,7 +36,7 @@ export default function Sidebar() {
         X
       </button>
       <h1 className={`${styles.title}`}>Settings</h1>
-      <p>Configure app behavior</p>
+      <p className={`${styles.description}`}>Configure app behavior</p>
       <Box sx={{ width: "100%", typography: "body1", marginTop: "1rem" }}>
         <TabContext value={tabValue}>
           <Box

@@ -97,7 +97,7 @@ export default function Homepage() {
     <div className={`${styles.container} homepage`}>
       <Toast />
       <p className={`${styles.modelInfo}`}>
-        {`Current selected model: ${selectedModel.name}`}
+        {`Selected Model: ${selectedModel.name}`}
       </p>
       <button
         className={`${styles.hamburgerMenu} settings ${
