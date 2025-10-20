@@ -1,6 +1,5 @@
 import { createContext, useState } from "react";
 import modelData from "../Data/model_data";
-import { groqModels } from "../../server/data/models";
 
 export const SettingsContext = createContext({});
 
@@ -13,6 +12,7 @@ export const SettingsContextProvider = ({ children }) => {
     name: modelData.defaultModel,
   });
   const [includeOllamaModels, setIncludeOllamaModels] = useState(false);
+  const [allowNetworkSharing, setAllowNetowrkSharing] = useState(false);
 
   return (
     <SettingsContext.Provider
@@ -27,6 +27,8 @@ export const SettingsContextProvider = ({ children }) => {
         setOllamaModelList,
         includeOllamaModels,
         setIncludeOllamaModels,
+        allowNetworkSharing,
+        setAllowNetowrkSharing,
       }}
     >
       {children}

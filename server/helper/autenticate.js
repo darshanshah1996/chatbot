@@ -13,8 +13,8 @@ function getDeviceIP() {
   return ipv4ddress;
 }
 
-export async function authenticateDevice(ipAddress) {
-  const formattedIPAddress = ipAddress.replace("::ffff:", ""); // remove IPv6 prefix
+export async function authenticateDevice(deviceIP, areOtherDevicesAllowed) {
+  const formattedIPAddress = deviceIP.replace("::ffff:", ""); // remove IPv6 prefix
   const serverIPAddress = getDeviceIP();
 
   if (
@@ -24,9 +24,17 @@ export async function authenticateDevice(ipAddress) {
   )
     return true; // Allow loop back address and device running server
 
-  console.log("MAC Details");
+  if (!areOtherDevicesAllowed) return false;
+
   const allowedMACAddress = Object.values(appConfig.allowedMACAddress);
   const deviceMACAddress = await toMAC(formattedIPAddress);
 
   return allowedMACAddress.includes(deviceMACAddress);
+}
+
+export async function validateDeviceForAllowingNetworkAccess(deviceIP) {
+  const formattedIPAddress = deviceIP.replace("::ffff:", ""); // remove IPv6 prefix
+  const allowedIPAddress = ["::1", "127.0.0.1"];
+
+  return allowedIPAddress.includes(formattedIPAddress);
 }

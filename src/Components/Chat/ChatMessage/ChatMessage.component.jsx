@@ -1,11 +1,11 @@
 import { Clipboard, Check } from "lucide-react";
-
-import React, { useEffect, useRef } from "react";
-import styles from "./ChatMessage.module.css";
-import ReactDOM from "react-dom/client";
-import language from "../../../Data/language";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { materialDark } from "react-syntax-highlighter/dist/esm/styles/prism";
+import React, { useEffect, useRef } from "react";
+import ReactDOM from "react-dom/client";
+
+import styles from "./ChatMessage.module.css";
+import language from "../../../Data/language";
 
 async function copyToClipboard(text, ref) {
   try {

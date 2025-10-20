@@ -13,17 +13,7 @@ import promptTemplate from "./template.js";
 import { LaunchApplicationUsingTool } from "./tools.js";
 import fs from "fs";
 
-function initializeMemory(serviceName, modelName) {
-  const model = initializeNonStreamModel(serviceName, modelName, 0.6);
-
-  return new ConversationSummaryBufferMemory({
-    memoryKey: "chat_history",
-    llm: model,
-    maxTokenLimit: 15000,
-  });
-}
-
-const memory = initializeMemory(llmProviders.groq, groqModels.scout);
+const memory = {};
 const groq = new Groq({ apiKey: api.GROQ_API_KEY });
 const parser = new StringOutputParser();
 
@@ -56,7 +46,7 @@ function initializeNonStreamModel(serviceName, modelName, temperature = 0) {
   return model;
 }
 
-function initializeStreamModel(serviceName, modelName, res) {
+function initializeStreamModel({ modelProvider, modelName, res }) {
   const callbacks = [
     {
       handleLLMNewToken(token) {
@@ -75,7 +65,7 @@ function initializeStreamModel(serviceName, modelName, res) {
 
   let model;
 
-  switch (serviceName) {
+  switch (modelProvider) {
     case llmProviders.groq:
       model = new ChatGroq({
         apiKey: api.GROQ_API_KEY,
@@ -105,16 +95,40 @@ function initializeStreamModel(serviceName, modelName, res) {
   return model;
 }
 
-export function getCodeChain(res, modelService, modelName) {
-  console.log("Initializing code chain");
+function initializeMemory({
+  modelProvider = llmProviders.groq,
+  modelName = groqModels.scout,
+} = {}) {
+  const model = initializeNonStreamModel(modelProvider, modelName, 0.6);
 
+  return new ConversationSummaryBufferMemory({
+    memoryKey: "chat_history",
+    llm: model,
+    maxTokenLimit: 15000,
+  });
+}
+
+function getMemoryInstance(deviceIP) {
+  let formattedDeviceIP = deviceIP.replace("::ffff:", ""); // remove IPv6 prefix
+  formattedDeviceIP =
+    formattedDeviceIP === "::1" ? "127.0.0.1" : formattedDeviceIP;
+
+  if (memory[formattedDeviceIP] === undefined) {
+    memory[formattedDeviceIP] = initializeMemory();
+  }
+
+  return memory[formattedDeviceIP];
+}
+
+export function getCodeChain({ res, modelProvider, modelName, deviceIP }) {
   const template = PromptTemplate.fromTemplate(promptTemplate.codeTemplate);
-  const model = initializeStreamModel(modelService, modelName, res);
+  const model = initializeStreamModel({ modelProvider, modelName, res });
+  const memoryInstance = getMemoryInstance(deviceIP);
 
   const chain = new LLMChain({
     llm: model,
     prompt: template,
-    memory: memory,
+    memory: memoryInstance,
     outputParser: parser,
   });
 
@@ -130,25 +144,30 @@ export function getRouterChain() {
   return chain;
 }
 
-export function getGeneralChain(res, modelService, modelName) {
+export function getGeneralChain({ res, modelProvider, modelName, deviceIP }) {
   const template = PromptTemplate.fromTemplate(promptTemplate.generalTemplate);
-  const model = initializeStreamModel(modelService, modelName, res);
+  const model = initializeStreamModel({ modelProvider, modelName, res });
+  const memoryInstance = getMemoryInstance(deviceIP);
 
   const chain = new LLMChain({
     llm: model,
     prompt: template,
-    memory: memory,
+    memory: memoryInstance,
     outputParser: parser,
   });
 
   return chain;
 }
 
-export async function launchApplications(res) {
+export async function launchApplications({ res }) {
   const template = PromptTemplate.fromTemplate(
     promptTemplate.launchApplication
   );
-  const llm = initializeStreamModel(llmProviders.groq, groqModels.scout, res);
+  const llm = initializeStreamModel({
+    modelProvider: llmProviders.groq,
+    modelName: groqModels.scout,
+    res,
+  });
 
   const tools = [new LaunchApplicationUsingTool()];
 

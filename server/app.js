@@ -12,11 +12,15 @@ import {
   getFilteredGroqModels,
   getFilteredOllamaModels,
 } from "./helper/filter_model.js";
-import { authenticateDevice } from "./helper/autenticate.js";
+import {
+  authenticateDevice,
+  validateDeviceForAllowingNetworkAccess,
+} from "./helper/autenticate.js";
 
 const appServer = express();
 const rootPath = appRootPath.path;
 const reactAppPath = path.join(rootPath, "../dist");
+let areOtherDevicesAllowed = false;
 
 console.log("=================Starting Server=================");
 
@@ -25,7 +29,10 @@ appServer.use(express.json());
 appServer.use(async (req, res, next) => {
   const deviceIPAddress = req.ip;
 
-  const isDeviceAllowed = await authenticateDevice(deviceIPAddress);
+  const isDeviceAllowed = await authenticateDevice(
+    deviceIPAddress,
+    areOtherDevicesAllowed
+  );
 
   if (!isDeviceAllowed) res.status(401).json({ error: "Unauthorized" });
   else {
@@ -107,14 +114,35 @@ appServer.get("/user", (req, res) => {
   });
 });
 
+appServer.post("/allow-other-devices", (req, res) => {
+  if (!validateDeviceForAllowingNetworkAccess(req.ip))
+    res.status(401).json({ error: "Unauthorized" });
+
+  console.log("===========From Server==========");
+  console.log(req.body.areOtherDevicesAllowed);
+
+  areOtherDevicesAllowed = req.body.areOtherDevicesAllowed;
+
+  res.status(200).json({
+    message: "Updated access for other devices",
+  });
+});
+
+appServer.get("/allow-other-devices", (req, res) => {
+  if (!validateDeviceForAllowingNetworkAccess(req.ip))
+    res.status(401).json({ error: "Unauthorized" });
+
+  res.status(200).json({
+    areOtherDevicesAllowed,
+  });
+});
+
 appServer.use("/chatbot", express.static(reactAppPath));
 
 appServer.post("/chat", async (req, res) => {
   const query = req.body.query;
 
-  console.log("======ModelDetails===========");
-  const { modelProvider, name } = req.body.selectedModel;
-  console.log(modelProvider, name);
+  const { modelProvider, name: modelName } = req.body.selectedModel;
 
   res.setHeader("Content-Type", "text/event-stream");
   res.setHeader("Cache-Control", "no-cache");
@@ -128,9 +156,12 @@ appServer.post("/chat", async (req, res) => {
     routes: getFormattedRoutes(),
   });
 
-  console.log(`=========Route ${route}===========`);
-
-  const chain = await routes[route](res, modelProvider, name);
+  const chain = await routes[route]({
+    res,
+    modelProvider,
+    modelName,
+    deviceIP: req.ip,
+  });
 
   try {
     await chain.invoke({

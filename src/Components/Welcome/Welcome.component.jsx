@@ -10,14 +10,14 @@ export default function Welcome() {
   const { showSiedbar } = useContext(SettingsContext);
 
   useEffect(() => {
-    if (userName.length === 0) {
-      (async () => {
-        const username = await userServices.getUserName();
+    (async () => {
+      const username = await userServices.getUserName();
 
-        updateUserName(username);
-      })();
-    }
+      updateUserName(username);
+    })();
   }, []);
+
+  if (userName.length === 0) return;
 
   return (
     <div className={`${styles.container} welcome`}>

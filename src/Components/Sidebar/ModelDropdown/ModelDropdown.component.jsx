@@ -28,9 +28,68 @@ export default function ModelDropdown() {
   const modelSelectionDropdown = useRef(null);
   const [selection, setSelection] = useState(selectedModel.name);
 
-  function updateModel(modelName) {
+  async function updateOllamaModels() {
     const isOllamaCheckboxChecked = includeOllamaCheckbox.current.checked;
 
+    if (isOllamaCheckboxChecked) {
+      const response = confirm(
+        "Do you want to include Ollama Models ? Please ensure Ollama is running on the system before proceeding."
+      );
+
+      if (response === false) {
+        includeOllamaCheckbox.current.checked = false;
+        return;
+      }
+
+      try {
+        const ollamaModelList = await getOllamaModelList();
+
+        setOllamaModelList(ollamaModelList);
+        setIncludeOllamaModels(true);
+
+        setToast({
+          message: "Model list updated successfully",
+          type: "Success",
+        });
+      } catch (error) {
+        console.log(error);
+
+        includeOllamaCheckbox.current.checked = false;
+
+        setToast({
+          message: "Error fetching ollama models",
+          type: "Error",
+        });
+      }
+    } else {
+      const response = confirm(
+        "Do you want to exclude Ollama Models ? If the current selected model is an Ollama model, it will be reset to Groq Default Model."
+      );
+
+      if (response === false) {
+        includeOllamaCheckbox.current.checked = true;
+        return;
+      }
+
+      setOllamaModelList([]);
+      setIncludeOllamaModels(false);
+
+      if (!groqModelList.includes(selection)) {
+        updatedSelectedModel({
+          modelProvider: modelData.llmProviders.groq,
+          name: modelData.defaultModel,
+        });
+        setSelection(modelData.defaultModel);
+        updateShowSidebar(false);
+      }
+      setToast({
+        message: "Model list updated successfully",
+        type: "Success",
+      });
+    }
+  }
+
+  function updateModel(modelName) {
     if (groqModelList.includes(modelName)) {
       updatedSelectedModel({
         modelProvider: modelData.llmProviders.groq,
@@ -48,46 +107,6 @@ export default function ModelDropdown() {
       message: "Model updated successfully",
       type: "Success",
     });
-
-    if (isOllamaCheckboxChecked !== includeOllamaModels) {
-      if (isOllamaCheckboxChecked) {
-        getOllamaModelList()
-          .then((models) => {
-            setOllamaModelList(models);
-            setIncludeOllamaModels(isOllamaCheckboxChecked);
-            setToast({
-              message: "Model list updated successfully",
-              type: "Success",
-            });
-          })
-          .catch((error) => {
-            console.log(error);
-
-            includeOllamaCheckbox.current.checked = false;
-
-            setToast({
-              message: "Error fetching ollama models",
-              type: "Error",
-            });
-          });
-      } else {
-        setOllamaModelList([]);
-        setIncludeOllamaModels(isOllamaCheckboxChecked);
-
-        if (!groqModelList.includes(modelName)) {
-          updatedSelectedModel({
-            modelProvider: modelData.llmProviders.groq,
-            name: modelData.defaultModel,
-          });
-          setSelection(modelData.defaultModel);
-          updateShowSidebar(false);
-        }
-        setToast({
-          message: "Model list updated successfully",
-          type: "Success",
-        });
-      }
-    }
   }
 
   return (
@@ -142,6 +161,7 @@ export default function ModelDropdown() {
           id="ollamaCheckbox"
           ref={includeOllamaCheckbox}
           defaultChecked={includeOllamaModels}
+          onChange={updateOllamaModels}
         />
         <label htmlFor="ollamaCheckbox">Include Ollama models</label>
         <Tooltip text="Ensure Ollama is running on your system before enabling this option" />

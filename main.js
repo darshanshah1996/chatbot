@@ -18,7 +18,7 @@ log.initialize();
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 function createTray() {
-  const iconPath = nativeImage.createFromPath("./chatbot.png");
+  const iconPath = "./chatbot.png";
   const tray = new Tray(iconPath);
   const contextMenu = Menu.buildFromTemplate([
     {
@@ -37,7 +37,6 @@ function createTray() {
     {
       label: "Quit",
       click: () => {
-        // Remove the close‑prevent handler so the app can quit
         mainWindow.removeAllListeners("close");
         app.quit();
       },
@@ -53,15 +52,15 @@ function createWindow() {
     width: 1920,
     height: 1080,
     title: "Chatbot",
-    icon: nativeImage.createFromPath("./chatbot.png"),
+    icon: "./chatbot.png",
     webPreferences: {
       nodeIntegration: true,
       preload: path.join(__dirname, "preload.mjs"),
     },
   });
 
-  mainWindow.loadURL("http://localhost:5173"); // Load your React app
-  //mainWindow.loadFile("./dist/index.html");
+  //mainWindow.loadURL("http://localhost:5173"); // Load your React app
+  mainWindow.loadFile("./dist/index.html");
   mainWindow.on("close", function (event) {
     event.preventDefault();
     mainWindow.hide();

@@ -15,21 +15,21 @@ import Sidebar from "../Sidebar/Sidebar.component";
 import { getGroqModelList } from "../../Services/model";
 import Toast from "../Toast/Toast.component";
 import { ToastContext } from "../../Context/ToastContext";
+import { areOtherDevicesAllowed } from "../../Services/settings";
 
 export default function Homepage() {
   const { updateIsLLMGeneratingResponse, updateChatMessages, chatMessages } =
     useContext(ChatContext);
   const { setToast } = useContext(ToastContext);
-  const { showSiedbar, updateShowSidebar, selectedModel, setGroqModelList } =
-    useContext(SettingsContext);
+  const {
+    showSiedbar,
+    updateShowSidebar,
+    selectedModel,
+    setGroqModelList,
+    setAllowNetowrkSharing,
+  } = useContext(SettingsContext);
 
   useEffect(() => {
-    if (window.electronAPI) {
-      window.electronAPI.getSystemIPAddress().then((url) => {
-        console.log(url);
-      });
-    }
-
     getGroqModelList()
       .then((models) => {
         setGroqModelList(models);
@@ -39,6 +39,19 @@ export default function Homepage() {
 
         setToast({
           message: "Error fetching groq models",
+          type: "Error",
+        });
+      });
+
+    areOtherDevicesAllowed()
+      .then((allowed) => {
+        setAllowNetowrkSharing(allowed);
+      })
+      .catch((error) => {
+        console.log(error);
+
+        setToast({
+          message: "Error fetching permission to allow other devices",
           type: "Error",
         });
       });

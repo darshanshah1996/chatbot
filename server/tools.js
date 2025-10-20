@@ -30,14 +30,10 @@ export class LaunchApplicationUsingTool extends Tool {
   }
 
   async _call(appName) {
-    console.log("Calling Launch Application Tool ");
-
     if (!this.#toolCalled) {
       this.#toolCalled = true;
 
       appName = appName.toLowerCase();
-
-      console.log("Tool Called");
 
       const applicationDetails = appConfig.appAlias[appName];
 

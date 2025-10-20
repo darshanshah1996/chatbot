@@ -7,6 +7,7 @@ import Tab from "@mui/material/Tab";
 import TabContext from "@mui/lab/TabContext";
 import TabList from "@mui/lab/TabList";
 import ModelDropdown from "./ModelDropdown/ModelDropdown.component";
+import NetworkPermission from "./NetworkPermission/NetworkPermission.component";
 
 export default function Sidebar() {
   const { updateShowSidebar } = useContext(SettingsContext);
@@ -20,8 +21,8 @@ export default function Sidebar() {
     switch (tabValue) {
       case "LLM":
         return <ModelDropdown />;
-      case "AI Tab":
-        return <p>AI Tab</p>;
+      case "Network Access":
+        return <NetworkPermission />;
       default:
         return <ModelDropdown />;
     }
@@ -53,7 +54,9 @@ export default function Sidebar() {
           >
             <TabList onChange={handleChange} aria-label="Settings Tab">
               <Tab label="LLM" value="LLM" />
-              <Tab label="AI Tab" value="AI Tab" />
+              {window?.electronAPI?.getSystemIPAddress && (
+                <Tab label="Network Access" value="Network Access" />
+              )}
             </TabList>
           </Box>
         </TabContext>
