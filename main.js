@@ -4,7 +4,6 @@ import {
   utilityProcess,
   ipcMain,
   Menu,
-  nativeImage,
   Tray,
 } from 'electron';
 import path from 'path';
@@ -100,7 +99,21 @@ function startServer() {
   });
 }
 
-app.whenReady().then(startServer);
+const gotTheLock = app.requestSingleInstanceLock();
+
+if (!gotTheLock) {
+  app.quit();
+} else {
+  app.on('second-instance', (event, commandLine, workingDirectory) => {
+    // Someone tried to run a second instance, we should focus our window
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) mainWindow.restore();
+      mainWindow.focus();
+    }
+  });
+
+  app.whenReady().then(startServer);
+}
 
 app.on('window-all-closed', function (event) {
   event.preventDefault();
