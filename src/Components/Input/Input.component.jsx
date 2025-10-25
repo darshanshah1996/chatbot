@@ -6,6 +6,10 @@ import { Send } from "lucide-react";
 import Microphone from "./Microphone/Microphone.component";
 import { ChatContext } from "../../Context/ChatContext";
 
+export function isDeviceMobile() {
+  return window.matchMedia("(max-width: 900px)").matches;
+}
+
 export default function ChatInput({ updateChatHistory }) {
   const { isLLMGeneratingResponse } = useContext(ChatContext);
   const [queryState, updateQueryState] = useState(false);
@@ -22,7 +26,7 @@ export default function ChatInput({ updateChatHistory }) {
   };
 
   useEffect(() => {
-    if (!isLLMGeneratingResponse) {
+    if (!isLLMGeneratingResponse && !isDeviceMobile()) {
       inputRef.current.focus();
     }
   }, [isLLMGeneratingResponse]);

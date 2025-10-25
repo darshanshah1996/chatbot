@@ -9,7 +9,7 @@ const Toast = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       setToast(null);
-    }, 3000);
+    }, 1500);
     return () => clearTimeout(timer);
   });
 

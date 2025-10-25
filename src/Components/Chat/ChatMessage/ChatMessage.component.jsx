@@ -89,10 +89,23 @@ export default React.memo(({ message, role }) => {
       }
 
       codeRef.current.style.display = "block";
+
+      codeRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "end",
+        inline: "nearest",
+      });
     }
 
-    document.querySelector("div.chat").scrollTop =
-      document.querySelector("div.chat").scrollHeight;
+    const loader = document.querySelector("div[class*='loader']");
+
+    console.log(loader);
+
+    loader?.scrollIntoView({
+      behavior: "smooth",
+      block: "end",
+      inline: "nearest",
+    });
   });
 
   return (
@@ -112,36 +125,3 @@ export default React.memo(({ message, role }) => {
     </div>
   );
 });
-
-/**    import React, { useRef } from 'react';
-
-    const CopyButton = ({ text }) => {
-      const textareaRef = useRef(null);
-
-      const handleCopy = () => {
-        // Create a temporary textarea element
-        const textarea = document.createElement('textarea');
-        textarea.value = text;
-        // Move it off‑screen
-        textarea.style.position = 'fixed';
-        textarea.style.left = '-9999px';
-        document.body.appendChild(textarea);
-        // Select the text
-        textarea.select();
-        textarea.setSelectionRange(0, textarea.value.length);
-        // Execute the copy command
-        const successful = document.execCommand('copy');
-        document.body.removeChild(textarea);
-        if (successful) {
-          alert('Copied to clipboard!');
-        } else {
-          alert('Copy failed. Please copy manually.');
-        }
-      };
-
-      return (
-        <button onClick={handleCopy}>Copy</button>
-      );
-    };
-
-    export default CopyButton; */

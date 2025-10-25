@@ -15,7 +15,7 @@
     "electron-dev": "concurrently \"npm run dev\" \"wait-on http://localhost:5173 && npm run electron\"",
     "start": "electron-forge start",
     "package": "electron-forge package",
-    "make": "electron-forge make"
+    "make": "electron-forge make --icon='./chatbot.png'"
   },
   "dependencies": {
     "@ai-sdk/groq": "^1.2.9",

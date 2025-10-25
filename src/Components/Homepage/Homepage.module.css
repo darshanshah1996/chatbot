@@ -56,6 +56,8 @@
 @media screen and (max-width: 900px) {
   .container {
     padding: 1rem 0.5rem;
+    height: auto;
+    min-height: 100%;
   }
 
   .chatContainer {

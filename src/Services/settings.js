@@ -10,6 +10,8 @@ export async function updateAppAccessFromOtherDevice(areOtherDevicesAllowed) {
 }
 
 export async function areOtherDevicesAllowed() {
+  if (window?.electronAPI === undefined) return false;
+
   const response = await axios.get(`${server.baseUrl}/allow-other-devices`);
 
   return response.data.areOtherDevicesAllowed;

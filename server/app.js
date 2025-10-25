@@ -34,8 +34,11 @@ appServer.use(async (req, res, next) => {
     areOtherDevicesAllowed
   );
 
-  if (!isDeviceAllowed) res.status(401).json({ error: "Unauthorized" });
-  else {
+  if (!isDeviceAllowed) {
+    console.log("blocked deivece");
+
+    res.status(401).json({ error: "Unauthorized" });
+  } else {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
     res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
@@ -114,12 +117,9 @@ appServer.get("/user", (req, res) => {
   });
 });
 
-appServer.post("/allow-other-devices", (req, res) => {
-  if (!validateDeviceForAllowingNetworkAccess(req.ip))
-    res.status(401).json({ error: "Unauthorized" });
-
-  console.log("===========From Server==========");
-  console.log(req.body.areOtherDevicesAllowed);
+appServer.post("/allow-other-devices", async (req, res) => {
+  if (!(await validateDeviceForAllowingNetworkAccess(req.ip)))
+    return res.status(401).json({ error: "Unauthorized" });
 
   areOtherDevicesAllowed = req.body.areOtherDevicesAllowed;
 
@@ -128,9 +128,9 @@ appServer.post("/allow-other-devices", (req, res) => {
   });
 });
 
-appServer.get("/allow-other-devices", (req, res) => {
-  if (!validateDeviceForAllowingNetworkAccess(req.ip))
-    res.status(401).json({ error: "Unauthorized" });
+appServer.get("/allow-other-devices", async (req, res) => {
+  if (!(await validateDeviceForAllowingNetworkAccess(req.ip)))
+    return res.status(401).json({ error: "Unauthorized" });
 
   res.status(200).json({
     areOtherDevicesAllowed,
