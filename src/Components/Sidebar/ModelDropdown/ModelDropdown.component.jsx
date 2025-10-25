@@ -1,4 +1,4 @@
-import { useContext, useRef } from "react";
+import { useContext, useRef, useState } from "react";
 
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
@@ -17,7 +17,7 @@ export default function ModelDropdown() {
     selectedModel,
     updatedSelectedModel,
     updateShowSidebar,
-    modelList,
+    groqModelList,
     ollamaModelList,
     includeOllamaModels,
     setIncludeOllamaModels,
@@ -26,69 +26,87 @@ export default function ModelDropdown() {
   const { setToast } = useContext(ToastContext);
   const includeOllamaCheckbox = useRef(null);
   const modelSelectionDropdown = useRef(null);
-  let selection = selectedModel.model;
+  const [selection, setSelection] = useState(selectedModel.name);
 
-  function updateModel(modelName) {
+  async function updateOllamaModels() {
     const isOllamaCheckboxChecked = includeOllamaCheckbox.current.checked;
 
-    if (modelName !== selectedModel.model) {
-      if (modelList.includes(modelName)) {
-        updatedSelectedModel({
-          modelService: modelData.groqService,
-          model: modelName,
-        });
-      } else {
-        updatedSelectedModel({
-          modelService: modelData.ollamaService,
-          model: modelName,
-        });
+    if (isOllamaCheckboxChecked) {
+      const response = confirm(
+        "Do you want to include Ollama Models ? Please ensure Ollama is running on the system before proceeding."
+      );
+
+      if (response === false) {
+        includeOllamaCheckbox.current.checked = false;
+        return;
       }
-      updateShowSidebar(false);
-      setToast({
-        message: "Model updated successfully",
-        type: "Success",
-      });
-    }
 
-    if (isOllamaCheckboxChecked !== includeOllamaModels) {
-      if (isOllamaCheckboxChecked) {
-        getOllamaModelList()
-          .then((models) => {
-            setOllamaModelList(models);
-            setIncludeOllamaModels(isOllamaCheckboxChecked);
-            setToast({
-              message: "Model list updated successfully",
-              type: "Success",
-            });
-          })
-          .catch((error) => {
-            console.log(error);
+      try {
+        const ollamaModelList = await getOllamaModelList();
 
-            includeOllamaCheckbox.current.checked = false;
+        setOllamaModelList(ollamaModelList);
+        setIncludeOllamaModels(true);
 
-            setToast({
-              message: "Error fetching ollama models",
-              type: "Error",
-            });
-          });
-      } else {
-        setOllamaModelList([]);
-        setIncludeOllamaModels(isOllamaCheckboxChecked);
-
-        if (!modelList.includes(modelName)) {
-          updatedSelectedModel({
-            modelService: modelData.groqService,
-            model: modelData.defaultModel,
-          });
-          selection = modelData.defaultModel;
-          updateShowSidebar(false);
-        }
         setToast({
           message: "Model list updated successfully",
           type: "Success",
         });
+      } catch (error) {
+        console.log(error);
+
+        includeOllamaCheckbox.current.checked = false;
+
+        setToast({
+          message: "Error fetching ollama models",
+          type: "Error",
+        });
       }
+    } else {
+      const response = confirm(
+        "Do you want to exclude Ollama Models ? If the current selected model is an Ollama model, it will be reset to Groq Default Model."
+      );
+
+      if (response === false) {
+        includeOllamaCheckbox.current.checked = true;
+        return;
+      }
+
+      setOllamaModelList([]);
+      setIncludeOllamaModels(false);
+
+      if (!groqModelList.includes(selection)) {
+        updatedSelectedModel({
+          modelProvider: modelData.llmProviders.groq,
+          name: modelData.defaultModel,
+        });
+        setSelection(modelData.defaultModel);
+        updateShowSidebar(false);
+      }
+      setToast({
+        message: "Model list updated successfully",
+        type: "Success",
+      });
     }
+  }
+
+  function updateModel(modelName) {
+    if (groqModelList.includes(modelName)) {
+      updatedSelectedModel({
+        modelProvider: modelData.llmProviders.groq,
+        name: modelName,
+      });
+    } else {
+      updatedSelectedModel({
+        modelProvider: modelData.llmProviders.ollama,
+        name: modelName,
+      });
+    }
+
+    updateShowSidebar(false);
+    setToast({
+      message: "Model updated successfully",
+      type: "Success",
+    });
   }
 
   return (
@@ -117,16 +135,16 @@ export default function ModelDropdown() {
         <InputLabel htmlFor="grouped-select">Model</InputLabel>
         <Select
           onChange={(e) => {
-            selection = e.target.value;
+            setSelection(e.target.value);
           }}
           ref={modelSelectionDropdown}
-          defaultValue={selectedModel.model}
+          defaultValue={selectedModel.name}
           id="grouped-select"
           label="Model"
         >
-          {modelList.length > 0 && <ListSubheader>Groq</ListSubheader>}
-          {modelList.length > 0 &&
-            modelList.map((model) => (
+          {groqModelList.length > 0 && <ListSubheader>Groq</ListSubheader>}
+          {groqModelList.length > 0 &&
+            groqModelList.map((model) => (
               <MenuItem value={model}>{model}</MenuItem>
             ))}
 
@@ -143,6 +161,7 @@ export default function ModelDropdown() {
           id="ollamaCheckbox"
           ref={includeOllamaCheckbox}
           defaultChecked={includeOllamaModels}
+          onChange={updateOllamaModels}
         />
         <label htmlFor="ollamaCheckbox">Include Ollama models</label>
         <Tooltip text="Ensure Ollama is running on your system before enabling this option" />
@@ -151,7 +170,13 @@ export default function ModelDropdown() {
         onClick={() => {
           updateModel(selection);
         }}
-        className={styles.saveChanges}
+        disabled={selectedModel.name === selection}
+        className={styles.saveChangesButton}
+        style={
+          selectedModel.name === selection
+            ? { opacity: 0.5, cursor: "not-allowed" }
+            : {}
+        }
       >
         Save
       </button>

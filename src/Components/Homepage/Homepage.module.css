@@ -46,8 +46,32 @@
   padding: 0.25rem;
   z-index: 2;
 }
+
 @media screen and (min-height: 1500px) {
   .hamburgerMenu {
     top: 2%;
+  }
+}
+
+@media screen and (max-width: 900px) {
+  .container {
+    padding: 1rem 0.5rem;
+    height: auto;
+    min-height: 100%;
+  }
+
+  .chatContainer {
+    padding: 2rem 0.25rem;
+  }
+
+  .modelInfo {
+    top: 0%;
+    font-size: 0.8rem;
+    text-align: center;
+  }
+
+  .hamburgerMenu {
+    top: 4%;
+    left: 5%;
   }
 }

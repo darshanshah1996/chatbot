@@ -1,24 +1,37 @@
 import { Clipboard, Check } from "lucide-react";
-
-import React, { useEffect, useRef } from "react";
-import styles from "./ChatMessage.module.css";
-import ReactDOM from "react-dom/client";
-import language from "../../../Data/language";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { materialDark } from "react-syntax-highlighter/dist/esm/styles/prism";
+import React, { useEffect, useRef } from "react";
+import ReactDOM from "react-dom/client";
+
+import styles from "./ChatMessage.module.css";
+import language from "../../../Data/language";
 
 async function copyToClipboard(text, ref) {
   try {
-    await navigator.clipboard.writeText(text);
+    if (navigator?.clipboard) {
+      await navigator.clipboard.writeText(text);
+    } else {
+      console.log("Copying using lecay method");
+
+      const textarea = document.createElement("textarea");
+
+      textarea.value = text;
+      textarea.style.position = "fixed";
+      textarea.style.left = "-9999px";
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand("copy");
+      document.body.removeChild(textarea);
+    }
+
     const button = ReactDOM.createRoot(ref.target.parentNode);
 
     button.render(<Check color="#109E10" />);
 
     setTimeout(() => {
       button.render(<Clipboard />);
-    }, 500);
-
-    console.log("Text copied to clipboard");
+    }, 1500);
   } catch (err) {
     console.error("Could not copy text: ", err);
   }
@@ -37,7 +50,7 @@ export default React.memo(({ message, role }) => {
 
       if (codeSnippet !== null) {
         codeSnippetList.push(
-          codeSnippet[0].replace(/<SYNTAXHIGHLIGHTER .*>/, "").trim()
+          codeSnippet[0].replace(/<SYNTAXHIGHLIGHTER .*>[\r\n]/, "").trimEnd()
         );
       }
     });
@@ -76,10 +89,23 @@ export default React.memo(({ message, role }) => {
       }
 
       codeRef.current.style.display = "block";
+
+      codeRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "end",
+        inline: "nearest",
+      });
     }
 
-    document.querySelector("div.chat").scrollTop =
-      document.querySelector("div.chat").scrollHeight;
+    const loader = document.querySelector("div[class*='loader']");
+
+    console.log(loader);
+
+    loader?.scrollIntoView({
+      behavior: "smooth",
+      block: "end",
+      inline: "nearest",
+    });
   });
 
   return (

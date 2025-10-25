@@ -3,7 +3,7 @@ import childProcess from "child_process";
 import path from "path";
 import os from "os";
 
-import { loadAppConfig } from "./helper/config.js";
+import { loadAppConfig } from "./helper/config_helper.js";
 
 const appConfig = loadAppConfig();
 const appBasePath = path.join(os.homedir(), "Desktop");
@@ -30,14 +30,10 @@ export class LaunchApplicationUsingTool extends Tool {
   }
 
   async _call(appName) {
-    console.log("Calling Launch Application Tool ");
-
     if (!this.#toolCalled) {
       this.#toolCalled = true;
 
       appName = appName.toLowerCase();
-
-      console.log("Tool Called");
 
       const applicationDetails = appConfig.appAlias[appName];
 

@@ -10,8 +10,8 @@
   margin-left: 0px;
 }
 
-.saveChanges {
-  background-color: grey;
+.saveChangesButton {
+  background-color: rgb(44, 189, 44);
   color: white;
   margin-top: 0.5rem;
   padding: 0.5rem 1rem;

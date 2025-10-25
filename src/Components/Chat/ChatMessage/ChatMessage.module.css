@@ -34,3 +34,13 @@ p {
   background-color: rgb(63, 61, 61);
   color: white;
 }
+
+@media screen and (max-width: 900px) {
+  .container {
+    width: 95%;
+  }
+
+  .container + .container {
+    margin-top: 1rem;
+  }
+}

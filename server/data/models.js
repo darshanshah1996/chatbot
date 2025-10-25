@@ -1,4 +1,4 @@
-export const modelServices = Object.freeze({
+export const llmProviders = Object.freeze({
   groq: "Groq",
   ollama: "Ollama",
 });

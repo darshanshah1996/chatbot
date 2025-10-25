@@ -1,28 +1,50 @@
 import express from "express";
 import os from "os";
-
 import morgan from "morgan";
 import multer from "multer";
+import appRootPath from "app-root-path";
+import path from "path";
 
 import { getRouterChain, routes, getTextFromSpeech } from "./chains.js";
 import { getFormattedRoutes } from "./data/route_data.js";
 import api from "./data/api.js";
 import {
-  getGroqFilteredModels,
-  getOllamaFilteredModels,
+  getFilteredGroqModels,
+  getFilteredOllamaModels,
 } from "./helper/filter_model.js";
+import {
+  authenticateDevice,
+  validateDeviceForAllowingNetworkAccess,
+} from "./helper/autenticate.js";
 
 const appServer = express();
+const rootPath = appRootPath.path;
+const reactAppPath = path.join(rootPath, "../dist");
+let areOtherDevicesAllowed = false;
 
 console.log("=================Starting Server=================");
 
 appServer.use(express.json());
 
-appServer.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
-  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
-  next();
+appServer.use(async (req, res, next) => {
+  const deviceIPAddress = req.ip;
+
+  const isDeviceAllowed = await authenticateDevice(
+    deviceIPAddress,
+    areOtherDevicesAllowed
+  );
+
+  if (!isDeviceAllowed) {
+    console.log("blocked deivece");
+
+    res.status(401).json({ error: "Unauthorized" });
+  } else {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+    res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+
+    next();
+  }
 });
 
 const storage = multer.diskStorage({
@@ -55,7 +77,7 @@ appServer.get("/groq-models", async (req, res) => {
     const models = modelsData["data"];
     const groqModels = models.map((model) => model.id);
 
-    const filteredModels = getGroqFilteredModels(groqModels);
+    const filteredModels = getFilteredGroqModels(groqModels);
 
     res.status(200).json({
       models: filteredModels,
@@ -77,7 +99,7 @@ appServer.get("/ollama-models", async (req, res) => {
     const models = modelsData["models"];
     const ollamaModels = models.map((model) => model.name);
 
-    const filteredModels = getOllamaFilteredModels(ollamaModels);
+    const filteredModels = getFilteredOllamaModels(ollamaModels);
 
     res.status(200).json({
       models: filteredModels,
@@ -95,12 +117,32 @@ appServer.get("/user", (req, res) => {
   });
 });
 
+appServer.post("/allow-other-devices", async (req, res) => {
+  if (!(await validateDeviceForAllowingNetworkAccess(req.ip)))
+    return res.status(401).json({ error: "Unauthorized" });
+
+  areOtherDevicesAllowed = req.body.areOtherDevicesAllowed;
+
+  res.status(200).json({
+    message: "Updated access for other devices",
+  });
+});
+
+appServer.get("/allow-other-devices", async (req, res) => {
+  if (!(await validateDeviceForAllowingNetworkAccess(req.ip)))
+    return res.status(401).json({ error: "Unauthorized" });
+
+  res.status(200).json({
+    areOtherDevicesAllowed,
+  });
+});
+
+appServer.use("/chatbot", express.static(reactAppPath));
+
 appServer.post("/chat", async (req, res) => {
   const query = req.body.query;
 
-  console.log("======ModelDetails===========");
-  const { modelService, model } = req.body.selectedModel;
-  console.log(modelService, model);
+  const { modelProvider, name: modelName } = req.body.selectedModel;
 
   res.setHeader("Content-Type", "text/event-stream");
   res.setHeader("Cache-Control", "no-cache");
@@ -114,9 +156,12 @@ appServer.post("/chat", async (req, res) => {
     routes: getFormattedRoutes(),
   });
 
-  console.log(`=========Route ${route}===========`);
-
-  const chain = await routes[route](res, modelService, model);
+  const chain = await routes[route]({
+    res,
+    modelProvider,
+    modelName,
+    deviceIP: req.ip,
+  });
 
   try {
     await chain.invoke({
