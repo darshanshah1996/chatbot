@@ -1,5 +1,5 @@
-import { createContext, useState } from "react";
-import modelData from "../Data/model_data";
+import { createContext, useState } from 'react';
+import modelData from '../Data/model_data';
 
 export const SettingsContext = createContext({});
 
@@ -13,6 +13,7 @@ export const SettingsContextProvider = ({ children }) => {
   });
   const [includeOllamaModels, setIncludeOllamaModels] = useState(false);
   const [allowNetworkSharing, setAllowNetowrkSharing] = useState(false);
+  const [dialogMessage, setDialogMessage] = useState('');
 
   return (
     <SettingsContext.Provider
@@ -29,6 +30,8 @@ export const SettingsContextProvider = ({ children }) => {
         setIncludeOllamaModels,
         allowNetworkSharing,
         setAllowNetowrkSharing,
+        dialogMessage,
+        setDialogMessage,
       }}
     >
       {children}
