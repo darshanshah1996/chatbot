@@ -88,6 +88,11 @@ export default React.memo(({ message, role }) => {
         );
       }
 
+      document.querySelectorAll('a:not(.format-link)').forEach((link) => {
+        link.target = '_blank';
+        link.classList.add('format-link');
+      });
+
       codeRef.current.style.display = 'block';
 
       codeRef.current.scrollIntoView({

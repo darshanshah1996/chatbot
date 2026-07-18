@@ -42,7 +42,7 @@ export default {
    The following is a summary of the conversation so far:
    {chat_history}
 
-   The answer should be in html format. The entire answer should be wrapped in a div tag. Each text in the answer should be wrapped in a p tag. ${codeFormatTemplate}
+   The answer should be in html format. The entire answer should be wrapped in a div tag. Each text in the answer should be wrapped in a p tag.All anchor tags should open in a new tab.${codeFormatTemplate}
 
   Important:- Just include the answer in you response. Do not include any other text in your response.If the summary is not relevant to the question then do not use the summary.
              
@@ -50,7 +50,24 @@ export default {
   AI:
   `,
 
-  launchApplication: ` '''Complete following task You have access to the following tools:
+  searchTemplate: `You are given an extract of search results from the web. 
+   Each search result contains following details: title, href, body. 
+   You are also given a question from the user. 
+   
+   You need to answer the question by refering the title and body of the search result.
+   When returning the answer also return the href corresponding to the search result from which the answer was found.
+   If the answer is not found in the search results then return "No answer found".
+
+   Important:-The answer should be in html format. The entire answer should be wrapped in a div tag. Each text in the answer should be wrapped in a p tag. ${codeFormatTemplate}
+ .
+   Web Search Extract:
+   {context}
+   
+   Question:
+   {question}
+   `,
+
+  toolTemplate: ` '''Complete following task You have access to the following tools:
 
 {tools}
 
@@ -61,6 +78,8 @@ Thought: you should always think about what to do
 Action: the action to take, should be one of [{tool_names}]
 Action Input: the input to the action
 Observation: the result of the action
+
+Important:- Do not try to update the application name which user wants to launch. Pass the name as it is provided by the user. Do not include your thoughts in your response. Just include the answer to the question
 
 Begin!
 

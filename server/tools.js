@@ -1,38 +1,44 @@
-import { Tool } from "langchain/tools";
-import childProcess from "child_process";
-import path from "path";
-import os from "os";
+import { Tool } from 'langchain/tools';
+import childProcess from 'child_process';
 
-import { loadAppConfig } from "./helper/config_helper.js";
+import { DDGS } from '@phukon/duckduckgo-search';
+import path from 'path';
+import os from 'os';
+
+import { loadAppConfig } from './helper/config_helper.js';
+import { getWebSearchResponseChain } from './chains.js';
 
 const appConfig = loadAppConfig();
-const appBasePath = path.join(os.homedir(), "Desktop");
+const appBasePath = path.join(os.homedir(), 'Desktop');
 
 export class LaunchApplicationUsingTool extends Tool {
-  name = "Launch Application";
-  description = "Use this tool to launch or open an application";
-  #toolCalled = false;
+  name = 'Launch Application';
+  description =
+    'Use this tool to launch or open an application e.g. when the user enters query such as open vs code';
+
+  res;
+
+  constructor(res) {
+    super();
+    this.res = res;
+  }
 
   async executeCommand(command) {
     return new Promise((resolve, reject) => {
       childProcess.exec(command, (error, stdout, stderr) => {
-        if (stdout) {
-          resolve(true);
-        }
-
         if (error || stderr) {
           console.log(error);
 
           resolve(false);
         }
+
+        resolve(true);
       });
     });
   }
 
   async _call(appName) {
-    if (!this.#toolCalled) {
-      this.#toolCalled = true;
-
+    try {
       appName = appName.toLowerCase();
 
       const applicationDetails = appConfig.appAlias[appName];
@@ -44,7 +50,7 @@ export class LaunchApplicationUsingTool extends Tool {
 
         if (applicationDetails.preRequisite) {
           const result = await this.executeCommand(
-            `tasklist | findstr /I "MSIAfterburner.exe"`
+            `tasklist | findstr /I "MSIAfterburner.exe"`,
           );
 
           if (!result) {
@@ -55,21 +61,83 @@ export class LaunchApplicationUsingTool extends Tool {
               : applicationDetails.preRequisite;
 
             await this.executeCommand(
-              `"${appBasePath}\/${preRequisiteApp}".lnk`
+              `"${appBasePath}\/${preRequisiteApp}".lnk`,
             );
           }
         }
       }
 
+      setTimeout(() => {
+        // Temporary patch. Occasionally the executeCommand gets stuck in process of launching application and does not return result
+        this.res.write(`Application ${appName} is being launched.\n\n`);
+
+        this.res.end();
+      }, 1500);
+
       const result = await this.executeCommand(
-        `"${appBasePath}\/${appName}".lnk`
+        `"${appBasePath}\/${appName}".lnk`,
       );
 
+      console.log('============== Launch Application Called=============');
+
       if (result) {
-        return `Application ${appName} launched successfully.`;
+        this.res.write(`Application ${appName} launched successfully.\n\n`);
       } else {
-        return `Application ${appName} failed to launch.`;
+        this.res.write(`\n data: Application ${appName} launch failed.\n\n`);
       }
+
+      this.res.end();
+    } catch (error) {
+      console.log(error);
+
+      this.res.end();
+    }
+  }
+}
+
+export class SearchWebTool extends Tool {
+  name = 'Search Web';
+  description =
+    'Use this tool to search the web to fetch real time information';
+
+  res;
+  deviceIP;
+
+  constructor(res, deviceIP) {
+    super();
+    this.res = res;
+    this.deviceIP = deviceIP;
+  }
+
+  async _call(query) {
+    try {
+      const ddgs = new DDGS();
+      const results = await ddgs.text({
+        keywords: query,
+        maxResults: 7,
+      });
+
+      const formattedResult = results
+        .map(
+          (result) =>
+            `title: ${result.title}\nhref: ${result.href}\nbody: ${result.body}\n\n`,
+        )
+        .join('\n');
+
+      console.log('============== Search Tool Called==============');
+      console.log(formattedResult);
+
+      const llm_chain = getWebSearchResponseChain({
+        res: this.res,
+        deviceIP: this.deviceIP,
+      });
+
+      return await llm_chain.invoke({
+        question: query,
+        context: formattedResult,
+      });
+    } catch (error) {
+      console.log(error);
     }
   }
 }
