@@ -71,9 +71,9 @@ export default function ModelDropdown() {
       if (!groqModelList.includes(selection)) {
         updatedSelectedModel({
           modelProvider: modelData.llmProviders.groq,
-          name: defaultGroqModel,
+          name: defaultGroqModel.name,
         });
-        setSelection(defaultGroqModel);
+        setSelection(defaultGroqModel.name);
         updateShowSidebar(false);
       }
       setToast({

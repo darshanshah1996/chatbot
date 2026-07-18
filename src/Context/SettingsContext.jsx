@@ -12,7 +12,7 @@ export const SettingsContextProvider = ({ children }) => {
   const [includeOllamaModels, setIncludeOllamaModels] = useState(false);
   const [allowNetworkSharing, setAllowNetworkSharing] = useState(false);
   const [dialogMessage, setDialogMessage] = useState('');
-  const [defaultGroqModel, setDefaultGroqModel] = useState('');
+  const [defaultGroqModel, setDefaultGroqModel] = useState();
 
   useEffect(() => {
     console.log('Fetching Model Data');
