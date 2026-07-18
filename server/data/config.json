@@ -10,5 +10,6 @@
   ],
   "excludeOllamaModels": ["mxbai"],
   "appAlias": {},
-  "allowedMACAddress": {}
+  "allowedMACAddress": {},
+  "defaultGroqModel": "llama-3.3-70b-versatile"
 }
