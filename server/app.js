@@ -1,28 +1,30 @@
-import express from "express";
-import os from "os";
-import morgan from "morgan";
-import multer from "multer";
-import appRootPath from "app-root-path";
-import path from "path";
+import express from 'express';
+import os from 'os';
+import morgan from 'morgan';
+import multer from 'multer';
+import appRootPath from 'app-root-path';
+import path from 'path';
 
-import { getRouterChain, routes, getTextFromSpeech } from "./chains.js";
-import { getFormattedRoutes } from "./data/route_data.js";
-import api from "./data/api.js";
+import { getRouterChain, routes, getTextFromSpeech } from './chains.js';
+import { getFormattedRoutes } from './data/route_data.js';
+import api from './data/api.js';
 import {
   getFilteredGroqModels,
   getFilteredOllamaModels,
-} from "./helper/filter_model.js";
+} from './helper/filter_model.js';
 import {
   authenticateDevice,
   validateDeviceForAllowingNetworkAccess,
-} from "./helper/autenticate.js";
+} from './helper/autenticate.js';
 
 const appServer = express();
 const rootPath = appRootPath.path;
-const reactAppPath = path.join(rootPath, "../dist");
+
+const reactAppPath = path.join(rootPath, './dist');
+
 let areOtherDevicesAllowed = false;
 
-console.log("=================Starting Server=================");
+console.log('=================Starting Server=================');
 
 appServer.use(express.json());
 
@@ -31,17 +33,17 @@ appServer.use(async (req, res, next) => {
 
   const isDeviceAllowed = await authenticateDevice(
     deviceIPAddress,
-    areOtherDevicesAllowed
+    areOtherDevicesAllowed,
   );
 
   if (!isDeviceAllowed) {
-    console.log("blocked deivece");
+    console.log('blocked deivece');
 
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: 'Unauthorized' });
   } else {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
-    res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
     next();
   }
@@ -49,23 +51,23 @@ appServer.use(async (req, res, next) => {
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "./server/uploads/");
+    cb(null, './server/uploads/');
   },
   filename: function (req, file, cb) {
-    cb(null, Date.now() + "-" + file.originalname);
+    cb(null, Date.now() + '-' + file.originalname);
   },
 });
 
-appServer.use(morgan("dev"));
+appServer.use(morgan('dev'));
 
-appServer.get("/", (req, res) => {
-  res.send("Chatbot Server 1.0");
+appServer.get('/', (req, res) => {
+  res.send('Chatbot Server 1.0');
 });
 
-appServer.get("/groq-models", async (req, res) => {
+appServer.get('/groq-models', async (req, res) => {
   try {
-    const response = await fetch("https://api.groq.com/openai/v1/models", {
-      method: "GET",
+    const response = await fetch('https://api.groq.com/openai/v1/models', {
+      method: 'GET',
       headers: {
         Authorization: `Bearer ${api.GROQ_API_KEY}`,
       },
@@ -74,7 +76,7 @@ appServer.get("/groq-models", async (req, res) => {
     if (!response.ok) res.status(500).json({ error: error.message });
 
     const modelsData = await response.json();
-    const models = modelsData["data"];
+    const models = modelsData['data'];
     const groqModels = models.map((model) => model.id);
 
     const filteredModels = getFilteredGroqModels(groqModels);
@@ -87,16 +89,16 @@ appServer.get("/groq-models", async (req, res) => {
   }
 });
 
-appServer.get("/ollama-models", async (req, res) => {
+appServer.get('/ollama-models', async (req, res) => {
   try {
-    const response = await fetch("http://localhost:11434/api/tags", {
-      method: "GET",
+    const response = await fetch('http://localhost:11434/api/tags', {
+      method: 'GET',
     });
 
     if (!response.ok) res.status(500).json({ error: error.message });
 
     const modelsData = await response.json();
-    const models = modelsData["models"];
+    const models = modelsData['models'];
     const ollamaModels = models.map((model) => model.name);
 
     const filteredModels = getFilteredOllamaModels(ollamaModels);
@@ -109,7 +111,7 @@ appServer.get("/ollama-models", async (req, res) => {
   }
 });
 
-appServer.get("/user", (req, res) => {
+appServer.get('/user', (req, res) => {
   const userName = os.userInfo().username;
 
   res.status(200).json({
@@ -117,36 +119,36 @@ appServer.get("/user", (req, res) => {
   });
 });
 
-appServer.post("/allow-other-devices", async (req, res) => {
+appServer.post('/allow-other-devices', async (req, res) => {
   if (!(await validateDeviceForAllowingNetworkAccess(req.ip)))
-    return res.status(401).json({ error: "Unauthorized" });
+    return res.status(401).json({ error: 'Unauthorized' });
 
   areOtherDevicesAllowed = req.body.areOtherDevicesAllowed;
 
   res.status(200).json({
-    message: "Updated access for other devices",
+    message: 'Updated access for other devices',
   });
 });
 
-appServer.get("/allow-other-devices", async (req, res) => {
+appServer.get('/allow-other-devices', async (req, res) => {
   if (!(await validateDeviceForAllowingNetworkAccess(req.ip)))
-    return res.status(401).json({ error: "Unauthorized" });
+    return res.status(401).json({ error: 'Unauthorized' });
 
   res.status(200).json({
     areOtherDevicesAllowed,
   });
 });
 
-appServer.use("/chatbot", express.static(reactAppPath));
+appServer.use('/chatbot', express.static(reactAppPath));
 
-appServer.post("/chat", async (req, res) => {
+appServer.post('/chat', async (req, res) => {
   const query = req.body.query;
 
   const { modelProvider, name: modelName } = req.body.selectedModel;
 
-  res.setHeader("Content-Type", "text/event-stream");
-  res.setHeader("Cache-Control", "no-cache");
-  res.setHeader("Connection", "keep-alive");
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection', 'keep-alive');
   res.flushHeaders();
 
   const routerChain = getRouterChain();
@@ -176,21 +178,21 @@ appServer.post("/chat", async (req, res) => {
 const upload = multer({ storage: storage });
 
 appServer.post(
-  "/speech-to-text",
-  upload.single("recording"),
+  '/speech-to-text',
+  upload.single('recording'),
   async (req, res) => {
     if (!req.file) {
-      return res.status(400).send("No audio file uploaded.");
+      return res.status(400).send('No audio file uploaded.');
     }
 
     const convertedText = await getTextFromSpeech(req.file.filename);
 
     res.status(200).send({ text: convertedText });
-  }
+  },
 );
 
 appServer.listen(3000, () => {
-  console.log("Server started on port 3000");
+  console.log('Server started on port 3000');
 });
 
 export default appServer;

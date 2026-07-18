@@ -1,17 +1,17 @@
-import { ConversationSummaryBufferMemory } from "langchain/memory";
-import { ChatGroq } from "@langchain/groq";
-import { ChatOllama } from "@langchain/ollama";
-import { PromptTemplate } from "@langchain/core/prompts";
-import { StringOutputParser } from "@langchain/core/output_parsers";
-import { createReactAgent, AgentExecutor } from "langchain/agents";
-import { LLMChain } from "langchain/chains";
-import Groq from "groq-sdk";
+import { ConversationSummaryBufferMemory } from 'langchain/memory';
+import { ChatGroq } from '@langchain/groq';
+import { ChatOllama } from '@langchain/ollama';
+import { PromptTemplate } from '@langchain/core/prompts';
+import { StringOutputParser } from '@langchain/core/output_parsers';
+import { createReactAgent, AgentExecutor } from 'langchain/agents';
+import { LLMChain } from 'langchain/chains';
+import Groq from 'groq-sdk';
 
-import { llmProviders, groqModels } from "./data/models.js";
-import api from "./data/api.js";
-import promptTemplate from "./template.js";
-import { LaunchApplicationUsingTool } from "./tools.js";
-import fs from "fs";
+import { llmProviders, groqModels } from './data/models.js';
+import api from './data/api.js';
+import promptTemplate from './template.js';
+import { LaunchApplicationUsingTool, SearchWebTool } from './tools.js';
+import fs from 'fs';
 
 const memory = {};
 const groq = new Groq({ apiKey: api.GROQ_API_KEY });
@@ -46,17 +46,22 @@ function initializeNonStreamModel(serviceName, modelName, temperature = 0) {
   return model;
 }
 
-function initializeStreamModel({ modelProvider, modelName, res }) {
+function initializeStreamModel({
+  modelProvider,
+  modelName,
+  res,
+  toolResponse = false,
+}) {
   const callbacks = [
     {
       handleLLMNewToken(token) {
-        res.write(`${token}`);
+        if (!toolResponse) res.write(`${token}`);
       },
       handleLLMEnd() {
-        res.end();
+        if (!toolResponse) res.end();
       },
       handleLLMError(err) {
-        console.error("Stream error:", err);
+        console.error('Stream error:', err);
         res.write(`data: [ERROR]: ${err.message}\n\n`);
         res.end();
       },
@@ -102,16 +107,16 @@ function initializeMemory({
   const model = initializeNonStreamModel(modelProvider, modelName, 0.6);
 
   return new ConversationSummaryBufferMemory({
-    memoryKey: "chat_history",
+    memoryKey: 'chat_history',
     llm: model,
     maxTokenLimit: 15000,
   });
 }
 
 function getMemoryInstance(deviceIP) {
-  let formattedDeviceIP = deviceIP.replace("::ffff:", ""); // remove IPv6 prefix
+  let formattedDeviceIP = deviceIP.replace('::ffff:', ''); // remove IPv6 prefix
   formattedDeviceIP =
-    formattedDeviceIP === "::1" ? "127.0.0.1" : formattedDeviceIP;
+    formattedDeviceIP === '::1' ? '127.0.0.1' : formattedDeviceIP;
 
   if (memory[formattedDeviceIP] === undefined) {
     memory[formattedDeviceIP] = initializeMemory();
@@ -159,17 +164,36 @@ export function getGeneralChain({ res, modelProvider, modelName, deviceIP }) {
   return chain;
 }
 
-export async function launchApplications({ res }) {
-  const template = PromptTemplate.fromTemplate(
-    promptTemplate.launchApplication
-  );
+export function getWebSearchResponseChain({ res, deviceIP }) {
+  const template = PromptTemplate.fromTemplate(promptTemplate.searchTemplate);
+  const model = initializeStreamModel({
+    modelProvider: llmProviders.groq,
+    modelName: groqModels.gptOSS120B,
+    res,
+  });
+
+  const chain = new LLMChain({
+    llm: model,
+    prompt: template,
+    outputParser: parser,
+  });
+
+  return chain;
+}
+
+export async function accessTool({ res, deviceIP }) {
+  const template = PromptTemplate.fromTemplate(promptTemplate.toolTemplate);
   const llm = initializeStreamModel({
     modelProvider: llmProviders.groq,
     modelName: groqModels.scout,
     res,
+    toolResponse: true,
   });
 
-  const tools = [new LaunchApplicationUsingTool()];
+  const tools = [
+    new LaunchApplicationUsingTool(res),
+    new SearchWebTool(res, deviceIP),
+  ];
 
   const agent = await createReactAgent({
     tools,
@@ -192,9 +216,9 @@ export async function getTextFromSpeech(audioFile) {
   const transaction = await groq.audio.transcriptions.create({
     file: fs.createReadStream(`./server/uploads/${audioFile}`),
     model: groqModels.whisper,
-    language: "en",
+    language: 'en',
     prompt: promptTemplate.speechToText,
-    response_format: "verbose_json",
+    response_format: 'verbose_json',
   });
 
   fs.unlink(`./server/uploads/${audioFile}`, (err) => {
@@ -208,7 +232,7 @@ export async function getTextFromSpeech(audioFile) {
 }
 
 export const routes = Object.freeze({
-  ApplicationRoute: launchApplications,
+  ToolRoute: accessTool,
   CodeRoute: getCodeChain,
   GeneralRoute: getGeneralChain,
   Default: getGeneralChain,

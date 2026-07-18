@@ -1,25 +1,27 @@
-import { toMAC } from "@network-utils/arp-lookup";
-import { loadAppConfig } from "./config_helper.js";
-import os from "os";
+import { toMAC } from '@network-utils/arp-lookup';
+import { loadAppConfig } from './config_helper.js';
+import os from 'os';
 
 const appConfig = loadAppConfig();
 
 function getDeviceIP() {
-  const networkDetails = os.networkInterfaces();
-  const ipv4ddress = networkDetails["Ethernet"].find(
-    (ethernetDetail) => ethernetDetail.family === "IPv4"
+  const networkInterfaces = os.networkInterfaces();
+  const localNetworks =
+    networkInterfaces['Ethernet'] || networkInterfaces['Wi-Fi'];
+  const ipv4ddress = localNetworks.find(
+    (network) => network.family === 'IPv4',
   ).address;
 
   return ipv4ddress;
 }
 
 export async function authenticateDevice(deviceIP, areOtherDevicesAllowed) {
-  const formattedIPAddress = deviceIP.replace("::ffff:", ""); // remove IPv6 prefix
+  const formattedIPAddress = deviceIP.replace('::ffff:', ''); // remove IPv6 prefix
   const serverIPAddress = getDeviceIP();
 
   if (
-    formattedIPAddress === "::1" ||
-    formattedIPAddress === "127.0.0.1" ||
+    formattedIPAddress === '::1' ||
+    formattedIPAddress === '127.0.0.1' ||
     formattedIPAddress === serverIPAddress
   )
     return true; // Allow loop back address and device running server
@@ -33,8 +35,8 @@ export async function authenticateDevice(deviceIP, areOtherDevicesAllowed) {
 }
 
 export async function validateDeviceForAllowingNetworkAccess(deviceIP) {
-  const formattedIPAddress = deviceIP.replace("::ffff:", ""); // remove IPv6 prefix
-  const allowedIPAddress = ["::1", "127.0.0.1"];
+  const formattedIPAddress = deviceIP.replace('::ffff:', ''); // remove IPv6 prefix
+  const allowedIPAddress = ['::1', '127.0.0.1'];
 
   return allowedIPAddress.includes(formattedIPAddress);
 }

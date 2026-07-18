@@ -22,6 +22,11 @@ p {
   white-space: pre-wrap;
 }
 
+:not(.format-code) a {
+  color: blue;
+  text-decoration: underline;
+}
+
 .codeSnippet {
   position: relative;
 }

@@ -58,7 +58,7 @@ function createWindow() {
     },
   });
 
-  //mainWindow.loadURL("http://localhost:5173"); // Load your React app
+  //mainWindow.loadURL("http://localhost:5173"); // Load your React app for local development
   mainWindow.loadFile('./dist/index.html');
   mainWindow.on('close', function (event) {
     event.preventDefault();

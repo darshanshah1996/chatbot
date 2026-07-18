@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 *,
 *::before,
@@ -34,6 +34,6 @@ body {
   display: none !important;
 }
 
-input[type="checkbox"] {
+input[type='checkbox'] {
   cursor: pointer;
 }
