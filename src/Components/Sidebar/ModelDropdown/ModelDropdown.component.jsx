@@ -23,6 +23,7 @@ export default function ModelDropdown() {
     includeOllamaModels,
     setIncludeOllamaModels,
     setOllamaModelList,
+    defaultGroqModel,
   } = useContext(SettingsContext);
   const { setToast } = useContext(ToastContext);
   const { setDialogMessage } = useContext(SettingsContext);
@@ -70,9 +71,9 @@ export default function ModelDropdown() {
       if (!groqModelList.includes(selection)) {
         updatedSelectedModel({
           modelProvider: modelData.llmProviders.groq,
-          name: modelData.defaultModel,
+          name: defaultGroqModel,
         });
-        setSelection(modelData.defaultModel);
+        setSelection(defaultGroqModel);
         updateShowSidebar(false);
       }
       setToast({
@@ -131,8 +132,8 @@ export default function ModelDropdown() {
 
     updateShowSidebar(false);
     setToast({
-      message: "Model updated successfully",
-      type: "Success",
+      message: 'Model updated successfully',
+      type: 'Success',
     });
   }
 
@@ -201,11 +202,7 @@ export default function ModelDropdown() {
         className={styles.saveChangesButton}
         style={
           selectedModel.name === selection
-<<<<<<< HEAD
             ? { opacity: 0.5, cursor: 'not-allowed' }
-=======
-            ? { opacity: 0.5, cursor: "not-allowed" }
->>>>>>> 792748e625fd00e0f6e28faf69284cc086f4c2dd
             : {}
         }
       >

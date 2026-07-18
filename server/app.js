@@ -11,7 +11,8 @@ import api from './data/api.js';
 import {
   getFilteredGroqModels,
   getFilteredOllamaModels,
-} from './helper/filter_model.js';
+  getDefaultModel,
+} from './helper/model_helper.js';
 import {
   authenticateDevice,
   validateDeviceForAllowingNetworkAccess,
@@ -37,7 +38,7 @@ appServer.use(async (req, res, next) => {
   );
 
   if (!isDeviceAllowed) {
-    console.log('blocked deivece');
+    console.log(`blocked device with ip address ${deviceIPAddress}`);
 
     res.status(401).json({ error: 'Unauthorized' });
   } else {
@@ -109,6 +110,12 @@ appServer.get('/ollama-models', async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
+});
+
+appServer.get('/default-model', (req, res) => {
+  res.status(200).json({
+    defaultModel: getDefaultModel(),
+  });
 });
 
 appServer.get('/user', (req, res) => {

@@ -102,7 +102,7 @@ function initializeStreamModel({
 
 function initializeMemory({
   modelProvider = llmProviders.groq,
-  modelName = groqModels.scout,
+  modelName = groqModels['llama3-3-70b-versatile'],
 } = {}) {
   const model = initializeNonStreamModel(modelProvider, modelName, 0.6);
 
@@ -142,7 +142,10 @@ export function getCodeChain({ res, modelProvider, modelName, deviceIP }) {
 
 export function getRouterChain() {
   const template = PromptTemplate.fromTemplate(promptTemplate.routerTemplate);
-  const model = initializeNonStreamModel(llmProviders.groq, groqModels.scout);
+  const model = initializeNonStreamModel(
+    llmProviders.groq,
+    groqModels['llama3-3-70b-versatile'],
+  );
 
   const chain = template.pipe(model).pipe(parser);
 
@@ -185,7 +188,7 @@ export async function accessTool({ res, deviceIP }) {
   const template = PromptTemplate.fromTemplate(promptTemplate.toolTemplate);
   const llm = initializeStreamModel({
     modelProvider: llmProviders.groq,
-    modelName: groqModels.scout,
+    modelName: groqModels['llama3-3-70b-versatile'],
     res,
     toolResponse: true,
   });

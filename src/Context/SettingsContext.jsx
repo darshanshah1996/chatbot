@@ -1,24 +1,34 @@
-import { createContext, useState } from 'react';
+import { createContext, useEffect, useState } from 'react';
 import modelData from '../Data/model_data';
+import { getDefaultModel } from '../Services/model';
 
 export const SettingsContext = createContext({});
 
 export const SettingsContextProvider = ({ children }) => {
-  const [showSiedbar, updateShowSidebar] = useState(false);
+  const [showSidebar, updateShowSidebar] = useState(false);
   const [groqModelList, setGroqModelList] = useState([]);
   const [ollamaModelList, setOllamaModelList] = useState([]);
-  const [selectedModel, updatedSelectedModel] = useState({
-    modelProvider: modelData.llmProviders.groq,
-    name: modelData.defaultModel,
-  });
+  const [selectedModel, updatedSelectedModel] = useState();
   const [includeOllamaModels, setIncludeOllamaModels] = useState(false);
-  const [allowNetworkSharing, setAllowNetowrkSharing] = useState(false);
+  const [allowNetworkSharing, setAllowNetworkSharing] = useState(false);
   const [dialogMessage, setDialogMessage] = useState('');
+  const [defaultGroqModel, setDefaultGroqModel] = useState('');
+
+  useEffect(() => {
+    console.log('Fetching Model Data');
+
+    getDefaultModel()
+      .then((model) => {
+        setDefaultGroqModel(model);
+        updatedSelectedModel(model);
+      })
+      .catch((error) => console.log(error));
+  }, []);
 
   return (
     <SettingsContext.Provider
       value={{
-        showSiedbar,
+        showSidebar,
         updateShowSidebar,
         selectedModel,
         updatedSelectedModel,
@@ -29,7 +39,7 @@ export const SettingsContextProvider = ({ children }) => {
         includeOllamaModels,
         setIncludeOllamaModels,
         allowNetworkSharing,
-        setAllowNetowrkSharing,
+        setAllowNetworkSharing,
         dialogMessage,
         setDialogMessage,
       }}

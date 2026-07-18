@@ -1,13 +1,13 @@
-import { useState, useEffect, useContext } from "react";
-import styles from "./Welcome.module.css";
-import * as userServices from "../../Services//user";
-import Sidebar from "../Sidebar/Sidebar.component";
-import { SettingsContext } from "../../Context/SettingsContext";
+import { useState, useEffect, useContext } from 'react';
+import styles from './Welcome.module.css';
+import * as userServices from '../../Services//user';
+import Sidebar from '../Sidebar/Sidebar.component';
+import { SettingsContext } from '../../Context/SettingsContext';
 
 export default function Welcome() {
-  const [userName, updateUserName] = useState("");
+  const [userName, updateUserName] = useState('');
 
-  const { showSiedbar } = useContext(SettingsContext);
+  const { showSidebar } = useContext(SettingsContext);
 
   useEffect(() => {
     (async () => {
@@ -21,7 +21,7 @@ export default function Welcome() {
 
   return (
     <div className={`${styles.container} welcome`}>
-      {showSiedbar && <Sidebar />}
+      {showSidebar && <Sidebar />}
       <div>
         <h3 className={`${styles.heading}`}>Welcome {userName}!</h3>
         <p className={`${styles.subTitle}`}>Ask question to begin chat!</p>

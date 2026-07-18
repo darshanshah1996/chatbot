@@ -1,10 +1,10 @@
-import fs from "fs";
-import path from "path";
-import { dirname } from "node:path";
-import { fileURLToPath } from "node:url";
+import fs from 'fs';
+import path from 'path';
+import { dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const configFolder = "D://Chatbot";
-const configFile = "config.json";
+const configFolder = 'D://Chatbot';
+const configFile = 'config.json';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const configFilePath = path.join(configFolder, configFile);
 
