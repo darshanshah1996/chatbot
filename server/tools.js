@@ -83,7 +83,7 @@ export class LaunchApplicationUsingTool extends Tool {
       if (result) {
         this.res.write(`Application ${appName} launched successfully.\n\n`);
       } else {
-        this.res.write(`\n data: Application ${appName} launch failed.\n\n`);
+        this.res.write(`Application ${appName} launch failed.\n\n`);
       }
 
       this.res.end();
