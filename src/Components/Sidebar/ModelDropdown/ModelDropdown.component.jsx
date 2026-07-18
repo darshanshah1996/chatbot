@@ -116,6 +116,26 @@ export default function ModelDropdown() {
     });
   }
 
+  function updateModel(modelName) {
+    if (groqModelList.includes(modelName)) {
+      updatedSelectedModel({
+        modelProvider: modelData.llmProviders.groq,
+        name: modelName,
+      });
+    } else {
+      updatedSelectedModel({
+        modelProvider: modelData.llmProviders.ollama,
+        name: modelName,
+      });
+    }
+
+    updateShowSidebar(false);
+    setToast({
+      message: "Model updated successfully",
+      type: "Success",
+    });
+  }
+
   return (
     <div className={`${styles.container} model-selector`}>
       <FormControl
@@ -181,7 +201,11 @@ export default function ModelDropdown() {
         className={styles.saveChangesButton}
         style={
           selectedModel.name === selection
+<<<<<<< HEAD
             ? { opacity: 0.5, cursor: 'not-allowed' }
+=======
+            ? { opacity: 0.5, cursor: "not-allowed" }
+>>>>>>> 792748e625fd00e0f6e28faf69284cc086f4c2dd
             : {}
         }
       >
