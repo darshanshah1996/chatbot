@@ -1,32 +1,33 @@
-import { useEffect } from "react";
+import { useEffect } from 'react';
 
-import styles from "./Homepage.module.css";
-import Welcome from "../Welcome/Welcome.component";
-import ChatMessage from "../Chat/ChatMessage/ChatMessage.component";
-import * as chatServices from "../../Services/chat";
-import ThinkingDots from "../Loading/Loading.component";
-import ChatInput from "../Input/Input.component";
-import { useContext } from "react";
-import { Menu } from "lucide-react";
-import { ChatContext } from "../../Context/ChatContext";
+import styles from './Homepage.module.css';
+import Welcome from '../Welcome/Welcome.component';
+import ChatMessage from '../Chat/ChatMessage/ChatMessage.component';
+import * as chatServices from '../../Services/chat';
+import ThinkingDots from '../Loading/Loading.component';
+import ChatInput from '../Input/Input.component';
+import { useContext } from 'react';
+import { Menu } from 'lucide-react';
+import { ChatContext } from '../../Context/ChatContext';
 
-import { SettingsContext } from "../../Context/SettingsContext";
-import Sidebar from "../Sidebar/Sidebar.component";
-import { getGroqModelList } from "../../Services/model";
-import Toast from "../Toast/Toast.component";
-import { ToastContext } from "../../Context/ToastContext";
-import { areOtherDevicesAllowed } from "../../Services/settings";
+import { SettingsContext } from '../../Context/SettingsContext';
+import Sidebar from '../Sidebar/Sidebar.component';
+import { getDefaultModel, getGroqModelList } from '../../Services/model';
+import Toast from '../Toast/Toast.component';
+import { ToastContext } from '../../Context/ToastContext';
+import { areOtherDevicesAllowed } from '../../Services/settings';
 
 export default function Homepage() {
   const { updateIsLLMGeneratingResponse, updateChatMessages, chatMessages } =
     useContext(ChatContext);
+  const { updatedSelectedModel } = useContext(SettingsContext);
   const { setToast } = useContext(ToastContext);
   const {
-    showSiedbar,
+    showSidebar,
     updateShowSidebar,
     selectedModel,
     setGroqModelList,
-    setAllowNetowrkSharing,
+    setAllowNetworkSharing,
   } = useContext(SettingsContext);
 
   useEffect(() => {
@@ -38,21 +39,21 @@ export default function Homepage() {
         console.log(error);
 
         setToast({
-          message: "Error fetching groq models",
-          type: "Error",
+          message: 'Error fetching groq models',
+          type: 'Error',
         });
       });
 
     areOtherDevicesAllowed()
       .then((allowed) => {
-        setAllowNetowrkSharing(allowed);
+        setAllowNetworkSharing(allowed);
       })
       .catch((error) => {
         console.log(error);
 
         setToast({
-          message: "Error fetching permission to allow other devices",
-          type: "Error",
+          message: 'Error fetching default model',
+          type: 'Error',
         });
       });
   }, []);
@@ -65,7 +66,7 @@ export default function Homepage() {
     updateChatMessages((messages) => [
       ...messages,
 
-      <ChatMessage role="user" message={message} key={new Date().getTime()} />,
+      <ChatMessage role='user' message={message} key={new Date().getTime()} />,
 
       <ThinkingDots key={messages.length} />,
     ]);
@@ -82,7 +83,7 @@ export default function Homepage() {
           ...messages,
 
           <ChatMessage
-            role="llm"
+            role='llm'
             message={llmResponse}
             key={new Date().getTime()}
           />,
@@ -100,8 +101,8 @@ export default function Homepage() {
       });
 
       setToast({
-        message: "Something went wrong",
-        type: "Error",
+        message: 'Something went wrong',
+        type: 'Error',
       });
     }
 
@@ -112,22 +113,22 @@ export default function Homepage() {
     <div className={`${styles.container} homepage`}>
       <Toast />
       <p className={`${styles.modelInfo}`}>
-        {`Selected Model: ${selectedModel.name}`}
+        {selectedModel && `Selected Model: ${selectedModel.name}`}
       </p>
       <button
         className={`${styles.hamburgerMenu} settings ${
-          showSiedbar ? "hide" : ""
+          showSidebar ? 'hide' : ''
         }`}
         onClick={() => {
           updateShowSidebar(true);
         }}
       >
-        <Menu color="#ffffff" />
+        <Menu color='#ffffff' />
       </button>
 
       {chatMessages.length !== 0 ? (
         <div className={`${styles.chatContainer} chat`}>
-          {showSiedbar && <Sidebar />}
+          {showSidebar && <Sidebar />}
           {chatMessages}
         </div>
       ) : (

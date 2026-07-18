@@ -29,7 +29,7 @@ async function copyToClipboard(text, ref) {
 
 export default function NetworkPermission() {
   const [appURL, setAppURL] = useState('');
-  const { allowNetworkSharing, setAllowNetowrkSharing, setDialogMessage } =
+  const { allowNetworkSharing, setAllowNetworkSharing, setDialogMessage } =
     useContext(SettingsContext);
   const { setToast } = useContext(ToastContext);
   const allowNetworkSharingCheckbox = useRef(null);
@@ -77,7 +77,7 @@ export default function NetworkPermission() {
         setAppURL(`http://${serverIPAddress}:3000/chatbot`);
       }
 
-      setAllowNetowrkSharing(areOtherDevicesAllowed);
+      setAllowNetworkSharing(areOtherDevicesAllowed);
       setToast({
         message: 'Permission updated for Other Devices',
         type: 'Success',

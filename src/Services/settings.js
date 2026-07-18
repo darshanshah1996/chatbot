@@ -1,8 +1,8 @@
-import axios from "axios";
-import server from "../Data/server";
+import axios from 'axios';
+import baseUrl from './base_url';
 
 export async function updateAppAccessFromOtherDevice(areOtherDevicesAllowed) {
-  const response = await axios.post(`${server.baseUrl}/allow-other-devices`, {
+  const response = await axios.post(`${baseUrl}/allow-other-devices`, {
     areOtherDevicesAllowed,
   });
 
@@ -12,7 +12,7 @@ export async function updateAppAccessFromOtherDevice(areOtherDevicesAllowed) {
 export async function areOtherDevicesAllowed() {
   if (window?.electronAPI === undefined) return false;
 
-  const response = await axios.get(`${server.baseUrl}/allow-other-devices`);
+  const response = await axios.get(`${baseUrl}/allow-other-devices`);
 
   return response.data.areOtherDevicesAllowed;
 }
