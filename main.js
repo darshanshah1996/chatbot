@@ -58,7 +58,7 @@ function createWindow() {
     },
   });
 
-  //mainWindow.loadURL("http://localhost:5173"); // Load your React app for local development
+  //mainWindow.loadURL('http://localhost:5173'); // Load your React app for local development
   mainWindow.loadFile('./dist/index.html');
   mainWindow.on('close', function (event) {
     event.preventDefault();
@@ -78,8 +78,10 @@ function startServer() {
 
   ipcMain.handle('get-system-ip-address', () => {
     const networkDetails = os.networkInterfaces();
+    const networkInterface =
+      networkDetails['Ethernet'] || networkDetails['Wi-Fi'];
 
-    return networkDetails.Ethernet.find((network) => network.family === 'IPv4')
+    return networkInterface.find((network) => network.family === 'IPv4')
       .address;
   });
 
