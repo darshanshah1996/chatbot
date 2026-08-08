@@ -2,23 +2,12 @@ import axios from 'axios';
 import baseUrl from './base_url';
 
 export async function queryLLM(query, selectedModel) {
-  const response = await axios.post(
-    `${baseUrl}/chat`,
-    {
-      query,
-      selectedModel,
-    },
-    {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    },
-    {
-      responseType: 'stream',
-    },
-  );
+  const response = await axios.post(`${baseUrl}/chat`, {
+    query,
+    selectedModel,
+  });
 
-  return response.data;
+  return response.data.message;
 }
 
 export async function speechToText(audioFile) {

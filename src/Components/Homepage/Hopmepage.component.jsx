@@ -1,6 +1,8 @@
 import { useEffect } from 'react';
+import { nanoid } from 'nanoid';
 
 import styles from './Homepage.module.css';
+
 import Welcome from '../Welcome/Welcome.component';
 import ChatMessage from '../Chat/ChatMessage/ChatMessage.component';
 import * as chatServices from '../../Services/chat';
@@ -9,7 +11,6 @@ import ChatInput from '../Input/Input.component';
 import { useContext } from 'react';
 import { Menu } from 'lucide-react';
 import { ChatContext } from '../../Context/ChatContext';
-
 import { SettingsContext } from '../../Context/SettingsContext';
 import Sidebar from '../Sidebar/Sidebar.component';
 import { getDefaultModel, getGroqModelList } from '../../Services/model';
@@ -66,9 +67,9 @@ export default function Homepage() {
     updateChatMessages((messages) => [
       ...messages,
 
-      <ChatMessage role='user' message={message} key={new Date().getTime()} />,
+      <ChatMessage role='user' message={message} key={nanoid()} />,
 
-      <ThinkingDots key={messages.length} />,
+      <ThinkingDots key={nanoid()} />,
     ]);
 
     try {
@@ -82,11 +83,7 @@ export default function Homepage() {
         return [
           ...messages,
 
-          <ChatMessage
-            role='llm'
-            message={llmResponse}
-            key={new Date().getTime()}
-          />,
+          <ChatMessage role='llm' message={llmResponse} key={nanoid()} />,
         ];
       });
     } catch (error) {
