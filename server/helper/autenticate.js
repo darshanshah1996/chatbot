@@ -1,6 +1,7 @@
 import { toMAC } from '@network-utils/arp-lookup';
-import { loadAppConfig } from './config_helper.js';
 import os from 'os';
+
+import { loadAppConfig } from './config.js';
 
 const appConfig = loadAppConfig();
 
