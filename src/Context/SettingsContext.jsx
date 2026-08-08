@@ -15,8 +15,6 @@ export const SettingsContextProvider = ({ children }) => {
   const [defaultGroqModel, setDefaultGroqModel] = useState();
 
   useEffect(() => {
-    console.log('Fetching Model Data');
-
     getDefaultModel()
       .then((model) => {
         setDefaultGroqModel(model);
