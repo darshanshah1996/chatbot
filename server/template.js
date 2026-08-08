@@ -11,84 +11,53 @@ const codeFormatTemplate = `Each code snippet should be displayed as follows:
 
   If there is no code to display then do not mention in the answer that there is no code to display just display the answer as is.  
  `;
-export default {
-  routerTemplate: `You are provided with a question. You are also provided with list of routes. Each route has a name and a description of when the route needs to be used. Based on the question and the list of routes, you need to return the name of the route that needs to be used to answer the question. 
-  If the question is a follow up question or does not have sufficient data to determine the route then use the past conversation history summary to undestand the context of the follow up question for selecting the route. 
-  
-  If there is no route suitable to answer the question, return text Default. 
-  
-  Important: Just return the name of the route that needs to be used to answer the question. Do not return any other information or any explanation about the answer. Do not include any other text in your response. 
 
-  Routes:
-  {routes}
-  
-  Question:
-  {question}
-  `,
-
-  codeTemplate: `You are a capable LLM for answering programing and coding related questions. Answer the to best of your knowledge. You are also porvided a summary of past conversation use that to guide your response if required.
-   The following is a summary of the conversation so far:
-   {chat_history}
-
-  The answer should be in html format. The entire answer should be wrapped in a div tag. Each text in the answer should be wrapped in a p tag. ${codeFormatTemplate}
-
-  Important:- Just include the answer in you response. Do not include any other text in your response.If the summary is not relevant to the question asked then do not use the summary.Do not forget to include the language attribute in the ReactHighlightSyntax tag.
-             
-  Human: {question}
-  AI:
-  `,
-
-  generalTemplate: `You are a capable LLM with knowledge of various general topics. Answer the to best of your knowledge. You are also porvided a summary of past conversation use that to guide your response if required.
-   The following is a summary of the conversation so far:
-   {chat_history}
-
-   The answer should be in html format. The entire answer should be wrapped in a div tag. Each text in the answer should be wrapped in a p tag.All anchor tags should open in a new tab.${codeFormatTemplate}
-
-  Important:- Just include the answer in you response. Do not include any other text in your response.If the summary is not relevant to the question then do not use the summary.
-             
-  Human: {question}
-  AI:
-  `,
-
-  searchTemplate: `You are given an extract of search results from the web. 
-   Each search result contains following details: title, href, body. 
-   You are also given a question from the user. 
+const toolTemplate = `Always use the tool provided to complete the task
    
-   You need to answer the question by refering the title and body of the search result.
+   When the request is to open or launch application call the tool to launch application only once and use the response from the tool to answer the request. Pass the application name as is passed as by the user to the tool.
+
+   When the requirement is to search the web to fetch real time information to answer the request call the tool to search web only once and use the response from the tool to answer the request.
+   When searching the web rephrase the user message and add additional information in the message if required so that the search result is relevant to the user message. When rephrasing just rephrase the message as a string no additional meta details
+
+   For web search the tool response will be a list of search results.
+
+   Each search result contains following details: title, href, body. 
+  
+   You need to answer the question by referring the title and body of the search result.
    When returning the answer also return the href corresponding to the search result from which the answer was found.
    If the answer is not found in the search results then return "No answer found".
 
-   Important:-The answer should be in html format. The entire answer should be wrapped in a div tag. Each text in the answer should be wrapped in a p tag. ${codeFormatTemplate}
- .
-   Web Search Extract:
-   {context}
-   
-   Question:
-   {question}
-   `,
+   Important:-The answer should be always be in html format. The entire answer should be wrapped in a div tag. Each text in the answer should be wrapped in a p tag.When returning search results always include href as source of the search result in the response.`;
 
-  toolTemplate: ` '''Complete following task You have access to the following tools:
+export default {
+  chatTemplate: `You are a capable LLM with knowledge of programming and coding related topics and knowledge of various general topics.    
+  You are acting as assistant to a user. You are provided with a question or a message from the user.
+  You are given system date and time i.e. the current date and time in the format year month date hour minute am/pm. Use this to answer the question if required 
+  System DateTime: {current_date_time} 
 
-{tools}
+  You are also give a summary of existing conversation.It can be empty. Use the summary to answer the question if required.
+  Summary: {chat_history}
+  
+   When answering the question check following
+   1. If the user has asked to open or launch application or asked a question which requires real time web information e/g current gold price, any product information etc. then check if any tool can be used. Refer following instruction to use tools.
+      Instruction: ${toolTemplate}
+   2. If the question is related to coding or programming then use following instructions when formatting answer
+      Instructions: ${codeFormatTemplate}
+   3. Check if summary provided has any relevant information to the question asked or needs to be used to answer the question. If there is any information in the summary then use it to answer the question.    
+   4. The answer should always be in html format even when question is not related to coding or programming. The entire answer should be wrapped in a div tag. Each text in the answer should be wrapped in a p tag
+   5. If the user message is not a question then respond as per user message e.g. respond to greeting. Do not ask user to provide conversation history
 
-Use the following format:
+  Important: Respond naturally to the question.The respond should always be in html format as mentioned in point 3. Just include the answer in you response. Do not include any other text in your response.
+  `,
 
-Question: the input question you must answer
-Thought: you should always think about what to do
-Action: the action to take, should be one of [{tool_names}]
-Action Input: the input to the action
-Observation: the result of the action
+  summaryTemplate: `You are provided with a conversation between a human and an AI. 
+Conversation History: {conversation_history}
 
-Important:- Do not try to update the application name which user wants to launch. Pass the name as it is provided by the user. Do not include your thoughts in your response. Just include the answer to the question
+You are also given with summary of existing conversation. The summary might be empty if there is no existing summary.
+Summary: {summary}
 
-Begin!
+Generate a concise summary based on the conversation history. If the existing summary is already present update the summary with the new conversation. When updating existing summary ensure details present in the existing summary are also present in the new summary along with summary generated based on the new conversation.
 
-Question: {question}
-Thought:{agent_scratchpad}
-
-In the reposne include the value returned by the tool. 
-
-'''`,
-
-  speechToText: `Translate the following speech to English`,
+Important:- Keep the summary short and to the point.
+`,
 };
