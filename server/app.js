@@ -5,18 +5,17 @@ import multer from 'multer';
 import appRootPath from 'app-root-path';
 import path from 'path';
 
-import { getRouterChain, routes, getTextFromSpeech } from './chains.js';
-import { getFormattedRoutes } from './data/route_data.js';
 import api from './data/api.js';
 import {
   getFilteredGroqModels,
   getFilteredOllamaModels,
   getDefaultModel,
-} from './helper/model_helper.js';
+} from './helper/model.js';
 import {
   authenticateDevice,
   validateDeviceForAllowingNetworkAccess,
 } from './helper/autenticate.js';
+import chat from './graph.js';
 
 const appServer = express();
 const rootPath = appRootPath.path;
@@ -153,50 +152,23 @@ appServer.post('/chat', async (req, res) => {
 
   const { modelProvider, name: modelName } = req.body.selectedModel;
 
-  res.setHeader('Content-Type', 'text/event-stream');
-  res.setHeader('Cache-Control', 'no-cache');
-  res.setHeader('Connection', 'keep-alive');
-  res.flushHeaders();
-
-  const routerChain = getRouterChain();
-
-  const route = await routerChain.invoke({
-    question: query,
-    routes: getFormattedRoutes(),
-  });
-
-  const chain = await routes[route]({
-    res,
-    modelProvider,
-    modelName,
-    deviceIP: req.ip,
-  });
-
   try {
-    await chain.invoke({
-      question: query,
+    const response = await chat({
+      modelProvider,
+      modelName,
+      deviceIP: req.ip,
+      message: query,
     });
+
+    res.status(200).json({ message: response });
   } catch (error) {
-    res.write(`data: [ERROR]: ${error.message}\n\n`);
-    res.end();
+    console.error(error);
+
+    res.status(500).json({ error: 'Something went wrong' });
   }
 });
 
 const upload = multer({ storage: storage });
-
-appServer.post(
-  '/speech-to-text',
-  upload.single('recording'),
-  async (req, res) => {
-    if (!req.file) {
-      return res.status(400).send('No audio file uploaded.');
-    }
-
-    const convertedText = await getTextFromSpeech(req.file.filename);
-
-    res.status(200).send({ text: convertedText });
-  },
-);
 
 appServer.listen(3000, () => {
   console.log('Server started on port 3000');
