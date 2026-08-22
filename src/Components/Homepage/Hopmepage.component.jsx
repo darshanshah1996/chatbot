@@ -87,18 +87,26 @@ export default function Homepage() {
         ];
       });
     } catch (error) {
-      console.log(error);
+      console.error(error);
 
       updateChatMessages((messages) => {
         if (messages[messages.length - 1].type === ThinkingDots) {
           messages.pop();
+
+          messages.push(
+            <ChatMessage
+              role='llm'
+              message='<p>Something went wrong. Check console for more info.</p>'
+              key={nanoid()}
+            />,
+          );
         }
 
         return [...messages];
       });
 
       setToast({
-        message: 'Something went wrong',
+        message: 'Something went wrong. Check console for more info.',
         type: 'Error',
       });
     }

@@ -162,9 +162,10 @@ appServer.post('/chat', async (req, res) => {
 
     res.status(200).json({ message: response });
   } catch (error) {
-    console.error(error);
+    const errorMessage =
+      error?.error?.error?.message ?? 'Internal server error';
 
-    res.status(500).json({ error: 'Something went wrong' });
+    res.status(500).json({ error: errorMessage });
   }
 });
 
