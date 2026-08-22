@@ -60,7 +60,7 @@ const chatLLM = async (state, config) => {
 const shouldSummarizeConversation = (state, config) => {
   const messages = state.messages;
 
-  return messages.length < 5 ? END : 'summarize';
+  return messages.length < 10 ? END : 'summarize';
 };
 
 const summarizeConversation = async (state, config) => {
