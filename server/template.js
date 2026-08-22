@@ -45,7 +45,7 @@ export default {
       Instructions: ${codeFormatTemplate}
    3. Check if summary provided has any relevant information to the question asked or needs to be used to answer the question. If there is any information in the summary then use it to answer the question.    
    4. The answer should always be in html format even when question is not related to coding or programming. The entire answer should be wrapped in a div tag. Each text in the answer should be wrapped in a p tag
-   5. If the user message is not a question then respond as per user message e.g. respond to greeting. Do not ask user to provide conversation history
+   5. If you do not know the answer always check if any of the tools provided can be used to answer the question.
 
   Important: Respond naturally to the question.The respond should always be in html format as mentioned in point 3. Just include the answer in you response. Do not include any other text in your response.
   `,

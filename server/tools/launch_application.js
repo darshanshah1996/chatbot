@@ -1,16 +1,14 @@
 import childProcess from 'child_process';
 import path from 'path';
-import os from 'os';
 
-import { loadAppConfig } from '../helper/config.js';
+import { loadAppConfig, loadAppShortcuts } from '../helper/config.js';
 
 const appConfig = loadAppConfig();
-const appBasePath = path.join(os.homedir(), 'Desktop');
 
 export default class LaunchApplication {
   async executeCommand(command) {
     return new Promise((resolve) => {
-      const child = childProcess.spawn(command, {
+      const child = childProcess.spawn(`"${command}"`, {
         shell: true,
         detached: true,
         stdio: 'ignore',
@@ -28,17 +26,23 @@ export default class LaunchApplication {
     });
   }
 
+  async getAppShortcutPath(appName) {
+    const shortcutList = loadAppShortcuts();
+
+    const appNameFormList =
+      Object.keys(shortcutList).find((app) => app === appName) ??
+      Object.keys(shortcutList).find((app) => app.includes(appName));
+
+    return { appPath: shortcutList[appNameFormList], name: appNameFormList };
+  }
+
   async _call(appName) {
     try {
       appName = appName.toLowerCase();
 
-      console.log(appName);
-
       const applicationDetails = appConfig.appAlias[appName];
 
-      if (applicationDetails === undefined) {
-        console.log(`Application ${appName} not found in alias list.`);
-      } else {
+      if (Object.hasOwn(appConfig.appAlias, appName)) {
         appName = applicationDetails.name;
 
         if (applicationDetails.preRequisite) {
@@ -52,17 +56,22 @@ export default class LaunchApplication {
         }
       }
 
-      const result = await this.executeCommand(
-        `"${appBasePath}\/${appName}".lnk`,
-      );
+      const { appPath, name: appNameFormList } =
+        await this.getAppShortcutPath(appName);
+
+      if (!appPath) {
+        return `Application ${appNameFormList ?? appName} not found.\n\n`;
+      }
+
+      const result = await this.executeCommand(appPath.replace('//', '\\'));
 
       if (result) {
-        return `Application ${appName} launched successfully.\n\n`;
+        return `Application ${appNameFormList ?? appName} launched successfully.\n\n`;
       } else {
-        return `Application ${appName} launch failed.\n\n`;
+        return `Application ${appNameFormList ?? appName} launch failed.\n\n`;
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
 
       return `Something went wrong.`;
     }
