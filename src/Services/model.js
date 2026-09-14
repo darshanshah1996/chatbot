@@ -13,6 +13,12 @@ export async function getOllamaModelList() {
   return modelsData.models.sort();
 }
 
+export async function getOpenRouterModelList() {
+  const { data: modelsData } = await axios.get(`${baseUrl}/openrouter-models`);
+
+  return modelsData.models.sort();
+}
+
 export async function getDefaultModel() {
   const { data: modelData } = await axios.get(`${baseUrl}/default-model`);
 

@@ -8,16 +8,15 @@ export const SettingsContextProvider = ({ children }) => {
   const [showSidebar, updateShowSidebar] = useState(false);
   const [groqModelList, setGroqModelList] = useState([]);
   const [ollamaModelList, setOllamaModelList] = useState([]);
+  const [openRouterModelList, setOpenRouterModelList] = useState([]);
   const [selectedModel, updatedSelectedModel] = useState();
   const [includeOllamaModels, setIncludeOllamaModels] = useState(false);
   const [allowNetworkSharing, setAllowNetworkSharing] = useState(false);
   const [dialogMessage, setDialogMessage] = useState('');
-  const [defaultGroqModel, setDefaultGroqModel] = useState();
 
   useEffect(() => {
     getDefaultModel()
       .then((model) => {
-        setDefaultGroqModel(model);
         updatedSelectedModel(model);
       })
       .catch((error) => console.log(error));
@@ -34,6 +33,8 @@ export const SettingsContextProvider = ({ children }) => {
         setGroqModelList,
         ollamaModelList,
         setOllamaModelList,
+        openRouterModelList,
+        setOpenRouterModelList,
         includeOllamaModels,
         setIncludeOllamaModels,
         allowNetworkSharing,

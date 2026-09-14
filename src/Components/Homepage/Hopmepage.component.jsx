@@ -13,7 +13,11 @@ import { Menu } from 'lucide-react';
 import { ChatContext } from '../../Context/ChatContext';
 import { SettingsContext } from '../../Context/SettingsContext';
 import Sidebar from '../Sidebar/Sidebar.component';
-import { getDefaultModel, getGroqModelList } from '../../Services/model';
+import {
+  getDefaultModel,
+  getGroqModelList,
+  getOpenRouterModelList,
+} from '../../Services/model';
 import Toast from '../Toast/Toast.component';
 import { ToastContext } from '../../Context/ToastContext';
 import { areOtherDevicesAllowed } from '../../Services/settings';
@@ -21,7 +25,6 @@ import { areOtherDevicesAllowed } from '../../Services/settings';
 export default function Homepage() {
   const { updateIsLLMGeneratingResponse, updateChatMessages, chatMessages } =
     useContext(ChatContext);
-  const { updatedSelectedModel } = useContext(SettingsContext);
   const { setToast } = useContext(ToastContext);
   const {
     showSidebar,
@@ -29,6 +32,7 @@ export default function Homepage() {
     selectedModel,
     setGroqModelList,
     setAllowNetworkSharing,
+    setOpenRouterModelList,
   } = useContext(SettingsContext);
 
   useEffect(() => {
@@ -41,6 +45,19 @@ export default function Homepage() {
 
         setToast({
           message: 'Error fetching groq models',
+          type: 'Error',
+        });
+      });
+
+    getOpenRouterModelList()
+      .then((models) => {
+        setOpenRouterModelList(models);
+      })
+      .catch((error) => {
+        console.log(error);
+
+        setToast({
+          message: 'Error fetching openrouter models',
           type: 'Error',
         });
       });
