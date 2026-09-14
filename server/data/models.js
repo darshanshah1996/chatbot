@@ -1,6 +1,7 @@
 export const llmProviders = Object.freeze({
   groq: 'Groq',
   ollama: 'Ollama',
+  openRouter: 'OpenRouter',
 });
 
 export const groqModels = Object.freeze({
