@@ -7,9 +7,10 @@ import path from 'path';
 
 import api from './data/api.js';
 import {
-  getFilteredGroqModels,
-  getFilteredOllamaModels,
+  getGroqModels,
   getDefaultModel,
+  getOpenRouterModels,
+  getOllamaModels,
 } from './helper/model.js';
 import {
   authenticateDevice,
@@ -61,28 +62,15 @@ const storage = multer.diskStorage({
 appServer.use(morgan('dev'));
 
 appServer.get('/', (req, res) => {
-  res.send('Chatbot Server 1.0');
+  res.send('Chatbot Server 1');
 });
 
 appServer.get('/groq-models', async (req, res) => {
   try {
-    const response = await fetch('https://api.groq.com/openai/v1/models', {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${api.GROQ_API_KEY}`,
-      },
-    });
-
-    if (!response.ok) res.status(500).json({ error: error.message });
-
-    const modelsData = await response.json();
-    const models = modelsData['data'];
-    const groqModels = models.map((model) => model.id);
-
-    const filteredModels = getFilteredGroqModels(groqModels);
+    const models = await getGroqModels();
 
     res.status(200).json({
-      models: filteredModels,
+      models,
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -91,20 +79,22 @@ appServer.get('/groq-models', async (req, res) => {
 
 appServer.get('/ollama-models', async (req, res) => {
   try {
-    const response = await fetch('http://localhost:11434/api/tags', {
-      method: 'GET',
-    });
-
-    if (!response.ok) res.status(500).json({ error: error.message });
-
-    const modelsData = await response.json();
-    const models = modelsData['models'];
-    const ollamaModels = models.map((model) => model.name);
-
-    const filteredModels = getFilteredOllamaModels(ollamaModels);
+    const models = await getOllamaModels();
 
     res.status(200).json({
-      models: filteredModels,
+      models,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+appServer.get('/openrouter-models', async (req, res) => {
+  try {
+    const models = await getOpenRouterModels();
+
+    res.status(200).json({
+      models,
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -162,8 +152,10 @@ appServer.post('/chat', async (req, res) => {
 
     res.status(200).json({ message: response });
   } catch (error) {
+    console.log(error.message);
+
     const errorMessage =
-      error?.error?.error?.message ?? 'Internal server error';
+      error?.error?.error?.message ?? error?.message ?? 'Internal server error';
 
     res.status(500).json({ error: errorMessage });
   }
