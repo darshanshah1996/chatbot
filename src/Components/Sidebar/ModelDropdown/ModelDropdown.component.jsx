@@ -19,6 +19,7 @@ export default function ModelDropdown() {
     updatedSelectedModel,
     updateShowSidebar,
     groqModelList,
+    openRouterModelList,
     ollamaModelList,
     includeOllamaModels,
     setIncludeOllamaModels,
@@ -103,24 +104,9 @@ export default function ModelDropdown() {
         modelProvider: modelData.llmProviders.groq,
         name: modelName,
       });
-    } else {
+    } else if (openRouterModelList.includes(modelName)) {
       updatedSelectedModel({
-        modelProvider: modelData.llmProviders.ollama,
-        name: modelName,
-      });
-    }
-
-    updateShowSidebar(false);
-    setToast({
-      message: 'Model updated successfully',
-      type: 'Success',
-    });
-  }
-
-  function updateModel(modelName) {
-    if (groqModelList.includes(modelName)) {
-      updatedSelectedModel({
-        modelProvider: modelData.llmProviders.groq,
+        modelProvider: modelData.llmProviders.openRouter,
         name: modelName,
       });
     } else {
@@ -162,6 +148,13 @@ export default function ModelDropdown() {
       >
         <InputLabel htmlFor='grouped-select'>Model</InputLabel>
         <Select
+          MenuProps={{
+            PaperProps: {
+              sx: {
+                maxHeight: 450,
+              },
+            },
+          }}
           onChange={(e) => {
             setSelection(e.target.value);
           }}
@@ -173,6 +166,14 @@ export default function ModelDropdown() {
           {groqModelList.length > 0 && <ListSubheader>Groq</ListSubheader>}
           {groqModelList.length > 0 &&
             groqModelList.map((model) => (
+              <MenuItem value={model}>{model}</MenuItem>
+            ))}
+
+          {openRouterModelList.length > 0 && (
+            <ListSubheader>Open Router</ListSubheader>
+          )}
+          {openRouterModelList.length > 0 &&
+            openRouterModelList.map((model) => (
               <MenuItem value={model}>{model}</MenuItem>
             ))}
 
